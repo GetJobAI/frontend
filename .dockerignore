@@ -1,0 +1,16 @@
+.env
+.env*.local
+
+.git
+.gitignore
+.idea
+.agents
+.cursor
+
+node_modules
+.next
+out
+build
+*.log
+.pnpm-debug.log*
+*.tsbuildinfo
