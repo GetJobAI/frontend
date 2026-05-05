@@ -1,15 +1,15 @@
 import { type Metadata } from "next";
 import { Activity } from "lucide-react";
 
-export const metadata: Metadata = { title: "Optimizations" };
+export const metadata: Metadata = { title: "Templates" };
 
-export default function OptimizationsPage() {
+export default function TemplatesPage() {
   return (
     <div className="flex h-full flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-white">Optimizations</h1>
+        <h1 className="text-xl font-semibold text-white">Templates</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          ATS optimization history — past runs, scores, and exports.
+          Templates for your resumes.
         </p>
       </div>
 
@@ -22,10 +22,9 @@ export default function OptimizationsPage() {
           />
         </div>
         <div>
-          <p className="text-sm font-medium text-white">No optimizations yet</p>
+          <p className="text-sm font-medium text-white">No templates yet</p>
           <p className="mt-1 text-xs text-neutral-500">
-            Upload a resume and paste a job description to run your first ATS
-            optimization.
+            Here you will found many Typst templates for your resumes. In the future, but not yet.
           </p>
         </div>
         <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-400">

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, FileText, LayoutGrid, Settings } from "lucide-react";
+import { LayoutTemplate, FileText, LayoutGrid, Settings } from "lucide-react";
 import { cn } from "~/lib/utils";
 
 const navItems = [
@@ -21,10 +21,10 @@ const navItems = [
     exact: false,
   },
   {
-    id: "nav-optimizations",
-    href: "/dashboard/optimizations",
-    label: "Optimizations",
-    icon: Activity,
+    id: "nav-templates",
+    href: "/dashboard/templates",
+    label: "Templates",
+    icon: LayoutTemplate,
     exact: false,
   },
   {
