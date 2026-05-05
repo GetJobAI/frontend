@@ -154,7 +154,7 @@
   .card-surface {
     background: oklch(0.13 0 0);
     border: 1px solid oklch(1 0 0 / 8%);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-2xl);
   }
 
   .card-surface-hover {

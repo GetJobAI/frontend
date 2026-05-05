@@ -1,0 +1,87 @@
+"use client";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type z } from "zod";
+import { step2Schema } from "~/lib/wizard-schemas";
+import { useWizardAutoSave } from "~/hooks/useWizardAutoSave";
+import { useWizard } from "./WizardContext";
+import { SectionHeader } from "./WizardField";
+import { WizardNavButtons } from "./WizardNavButtons";
+import {
+  Field,
+  FieldLabel,
+  FieldError,
+  FieldDescription,
+} from "~/components/ui/field";
+import { Textarea } from "~/components/ui/textarea";
+import { Sparkles } from "lucide-react";
+
+type Step2Data = z.infer<typeof step2Schema>;
+
+export function Step2Summary() {
+  const { sessionId, stepData, nextStep } = useWizard();
+  const saved = stepData[2] as Partial<Step2Data> | undefined;
+
+  const form = useForm<Step2Data>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+    resolver: zodResolver(step2Schema) as any,
+    defaultValues: saved ?? { summary_text: "" },
+    mode: "onChange",
+  });
+
+  useWizardAutoSave(sessionId, 2, form.watch);
+
+  const summaryText = form.watch("summary_text") ?? "";
+  const charCount = summaryText.length;
+
+  const onSubmit = form.handleSubmit(() => nextStep());
+
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col gap-6">
+      <SectionHeader
+        title="Professional summary"
+        description="Write a short professional summary that captures your experience and target role."
+      />
+
+      <div className="flex items-center gap-2 rounded-lg border border-dashed border-violet-500/20 bg-violet-500/5 px-4 py-3">
+        <Sparkles
+          className="size-4 shrink-0 text-violet-500/50"
+          strokeWidth={1.7}
+        />
+        <p className="text-xs text-neutral-600">
+          <span className="font-medium text-neutral-500">
+            AI &quot;Write for me&quot;
+          </span>{" "}
+          — coming soon. This will draft a Professional summary based on your
+          experience.
+        </p>
+      </div>
+
+      <Field data-invalid={!!form.formState.errors.summary_text}>
+        <div className="flex w-full items-center justify-between">
+          <FieldLabel htmlFor="summary_text">Summary</FieldLabel>
+          <span
+            className={`text-[10px] tabular-nums ${charCount > 1800 ? "text-amber-400" : "text-neutral-700"}`}
+          >
+            {charCount}/2000
+          </span>
+        </div>
+        <Textarea
+          id="summary_text"
+          placeholder="Results-driven software engineer with 5+ years building scalable web applications. Passionate about clean architecture and developer experience. Seeking to bring full-stack expertise to a product-focused team."
+          rows={5}
+          {...form.register("summary_text")}
+          aria-invalid={!!form.formState.errors.summary_text}
+        />
+        <FieldDescription>
+          Required — this section cannot be empty. We recommend using at least
+          20 characters.
+        </FieldDescription>
+        <FieldError>{form.formState.errors.summary_text?.message}</FieldError>
+      </Field>
+
+      <WizardNavButtons isSubmitting={form.formState.isSubmitting} />
+    </form>
+  );
+}

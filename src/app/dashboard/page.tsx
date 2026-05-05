@@ -173,7 +173,7 @@ export default async function DashboardPage() {
                 key={path.id}
                 id={path.id}
                 href={path.href}
-                className="group relative flex min-h-0 flex-1 items-center gap-5 px-6 py-4 transition-all duration-300 hover:bg-white/[0.02]"
+                className="group relative flex min-h-0 flex-1 items-center gap-5 px-6 py-4 transition-all duration-300 hover:bg-white/2"
               >
                 <span
                   aria-hidden="true"

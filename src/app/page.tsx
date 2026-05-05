@@ -4,7 +4,7 @@ import { type Metadata } from "next";
 import { Logo } from "~/components/logo";
 
 export const metadata: Metadata = {
-  title: "GetJobAI — AI-Powered Resume Optimization",
+  title: "GetJobAI — AI-powered resume optimization",
   description:
     "Beat ATS filters and land more interviews. AI resume rewriting, ATS scoring, and LinkedIn import — in under 60 seconds.",
 };
@@ -15,7 +15,7 @@ const features = [
     icon: (
       <ShieldCheck className="size-5" strokeWidth={1.6} aria-hidden="true" />
     ),
-    title: "ATS Optimization",
+    title: "ATS optimization",
     description:
       "Score your resume against any job description with TF-IDF keyword analysis. Get a detailed gap report and boost your ATS compatibility score by 35+ points.",
   },
@@ -24,9 +24,9 @@ const features = [
     icon: (
       <WandSparkles className="size-5" strokeWidth={1.6} aria-hidden="true" />
     ),
-    title: "AI Resume Rewriting",
+    title: "AI resume rewriting",
     description:
-      "GPT-4o rewrites your bullet points using the XYZ achievement method — naturally integrating keywords without fabricating experience.",
+      "AI rewrites your bullet points using the XYZ achievement method — naturally integrating keywords without fabricating experience.",
   },
   {
     id: "linkedin-import",
@@ -45,7 +45,7 @@ const features = [
         <circle cx="4" cy="4" r="2" />
       </svg>
     ),
-    title: "LinkedIn ZIP Import",
+    title: "LinkedIn ZIP import",
     description:
       "Upload your LinkedIn data export and auto-populate every resume field in one click. No re-typing your work history ever again.",
   },
@@ -111,17 +111,7 @@ export default function HomePage() {
                 aria-hidden="true"
               />
             </Link>
-            <Link
-              id="cta-sign-in"
-              href="/sign-in?redirect_url=%2Fdashboard"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:border-white/20 hover:bg-white/10"
-            >
-              Sign in
-            </Link>
           </div>
-          <p className="mt-8 text-xs text-neutral-600">
-            No credit card required · GDPR compliant · Cancel anytime
-          </p>
         </section>
         <section
           id="features"

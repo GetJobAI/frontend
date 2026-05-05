@@ -1,26 +1,55 @@
-// // Example model schema from the Drizzle docs
-// // https://orm.drizzle.team/docs/sql-schema-declaration
+import {
+  pgTable,
+  uuid,
+  smallint,
+  jsonb,
+  text,
+  timestamp,
+  pgEnum,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
+import { isNull } from "drizzle-orm";
 
-// import { index, pgTableCreator } from "drizzle-orm/pg-core";
+export const wizardSourceEnum = pgEnum("wizard_source", [
+  "scratch",
+  "linkedin_zip",
+]);
 
-// /**
-//  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
-//  * database instance for multiple projects.
-//  *
-//  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
-//  */
-// export const createTable = pgTableCreator((name) => `frontend_${name}`);
+export const wizardSessions = pgTable(
+  "wizard_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    currentStep: smallint("current_step").notNull().default(1),
+    stepData: jsonb("step_data").notNull().default({}), // encrypted at app layer
+    source: wizardSourceEnum("source").notNull().default("scratch"),
+    linkedinImportId: uuid("linkedin_import_id"),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("wizard_sessions_user_active")
+      .on(table.userId)
+      .where(isNull(table.completedAt)),
+  ],
+);
 
-// export const posts = createTable(
-//   "post",
-//   (d) => ({
-//     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-//     name: d.varchar({ length: 256 }),
-//     createdAt: d
-//       .timestamp({ withTimezone: true })
-//       .$defaultFn(() => /* @__PURE__ */ new Date())
-//       .notNull(),
-//     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-//   }),
-//   (t) => [index("name_idx").on(t.name)],
-// );
+export const resumes = pgTable("resumes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").notNull(),
+  content: jsonb("content"), // canonical field per OpenAPI
+  inputMethod: text("input_method"), // 'wizard' for this path
+  wizardSessionId: uuid("wizard_session_id"),
+  parseStatus: text("parse_status").default("completed"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
