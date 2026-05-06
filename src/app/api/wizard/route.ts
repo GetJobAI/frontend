@@ -8,7 +8,6 @@ export async function POST() {
   try {
     const userId = await getUserId();
 
-    // Enforce one active session per user
     const activeSessions = await db.query.wizardSessions.findMany({
       where: and(
         eq(wizardSessions.userId, userId),

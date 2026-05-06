@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { isAxiosError } from "axios";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WizardProvider, useWizard } from "./WizardContext";
 import { WizardProgress } from "./WizardProgress";
 import { Step1PersonalInfo } from "./Step1PersonalInfo";
@@ -82,49 +79,28 @@ function WizardBody() {
 }
 
 export function WizardShell() {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 0,
-            retry: (failureCount, error) => {
-              if (isAxiosError(error) && error.response?.status === 404) {
-                return false;
-              }
-              return failureCount < 2;
-            },
-          },
-        },
-      }),
-  );
-
   return (
-    <QueryClientProvider client={queryClient}>
-      <WizardProvider>
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-16">
-          <div className="flex items-center gap-3">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-violet-600/15 text-violet-400">
-              <WandSparkles className="size-4" strokeWidth={1.7} />
-            </span>
-            <div>
-              <h1 className="text-sm font-semibold text-white">
-                Resume Wizard
-              </h1>
-              <p className="text-[11px] text-neutral-600">
-                Progress auto-saves every 500 ms — pick up right where you left
-                off
-              </p>
-            </div>
-          </div>
-
-          <div className="card-surface flex flex-col gap-0 overflow-hidden">
-            <div className="p-6 sm:p-8">
-              <WizardBody />
-            </div>
+    <WizardProvider>
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-16">
+        <div className="flex items-center gap-3">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-violet-600/15 text-violet-400">
+            <WandSparkles className="size-4" strokeWidth={1.7} />
+          </span>
+          <div>
+            <h1 className="text-sm font-semibold text-white">Resume Wizard</h1>
+            <p className="text-[11px] text-neutral-600">
+              Progress auto-saves every 500 ms — pick up right where you left
+              off
+            </p>
           </div>
         </div>
-      </WizardProvider>
-    </QueryClientProvider>
+
+        <div className="card-surface flex flex-col gap-0 overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <WizardBody />
+          </div>
+        </div>
+      </div>
+    </WizardProvider>
   );
 }

@@ -30,4 +30,3 @@ export async function deleteResumeAction(resumeId: string) {
     return { ok: false as const, error: "Failed to delete resume" };
   }
 }
-

@@ -5,7 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { UserButton, useClerk, useUser } from "@clerk/nextjs";
 import { PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 import { DashboardNav } from "~/app/dashboard/_components/dashboard-nav";
-import { Logo } from "~/components/logo";
+import { Logo } from "~/components/global/Logo";
 import { Button } from "~/components/ui/button";
 import {
   Sidebar,

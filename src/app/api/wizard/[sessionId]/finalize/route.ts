@@ -39,7 +39,6 @@ export async function POST(
       const stepData = decryptStepData(session.stepData);
       const score = computeCompletenessScore(stepData);
 
-      // Block finalization below 60%
       if (score < 60) {
         return { error: "Completeness score below 60%", score } as const;
       }

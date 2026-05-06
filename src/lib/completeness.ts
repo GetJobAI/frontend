@@ -45,6 +45,8 @@ export function stepIsFilled(
       return Array.isArray(data.languages) && data.languages.length > 0;
     case 8:
       return Array.isArray(data.projects) && data.projects.length > 0;
+    case 9:
+      return false;
     default:
       return true;
   }

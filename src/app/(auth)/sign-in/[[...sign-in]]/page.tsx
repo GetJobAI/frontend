@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SignInPage() {
-  const { userId } = await auth();
+  const userId = await auth();
 
   if (userId) {
     redirect("/dashboard");

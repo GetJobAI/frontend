@@ -53,7 +53,7 @@ export function WizardProgress() {
             ) : (
               <span
                 className={cn(
-                  "flex size-4 items-center justify-center rounded-full text-[9px] leading-none font-bold",
+                  "flex size-4 items-center justify-center rounded-full text-[10px] leading-none font-bold",
                   isCurrent
                     ? "bg-violet-500/30 text-violet-300"
                     : "bg-white/10 text-neutral-500",
@@ -62,7 +62,7 @@ export function WizardProgress() {
                 {step}
               </span>
             )}
-            <span className="w-full truncate text-center text-[9px] font-medium tracking-tight sm:text-[10px]">
+            <span className="w-full truncate text-center text-[10px] font-medium tracking-tight sm:text-[11px]">
               {label}
             </span>
           </button>

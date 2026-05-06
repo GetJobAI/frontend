@@ -24,7 +24,8 @@ export default function TemplatesPage() {
         <div>
           <p className="text-sm font-medium text-white">No templates yet</p>
           <p className="mt-1 text-xs text-neutral-500">
-            Here you will found many Typst templates for your resumes. In the future, but not yet.
+            Here you will found many Typst templates for your resumes. In the
+            future, but not yet.
           </p>
         </div>
         <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-400">

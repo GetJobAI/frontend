@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -49,6 +50,7 @@ export function useWizard() {
 
 export function WizardProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
+  const hydratedSessionRef = useRef<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [furthestStep, setFurthestStep] = useState(1);
@@ -58,6 +60,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     mutationFn: createWizardSession,
     onSuccess: () => setLoadError(null),
     onError: (e) => {
+      hydratedSessionRef.current = null;
       setSessionId(null);
       setLoadError(getErrorMessage(e));
     },
@@ -84,15 +87,19 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!sessionQuery.data) return;
     const cs = sessionQuery.data.currentStep;
-    setCurrentStep((prev) => Math.max(prev, cs));
+    if (sessionId && hydratedSessionRef.current !== sessionId) {
+      hydratedSessionRef.current = sessionId;
+      setCurrentStep(cs);
+    }
     setFurthestStep((prev) => Math.max(prev, cs));
-  }, [sessionQuery.data]);
+  }, [sessionQuery.data, sessionId]);
 
   useEffect(() => {
     if (!sessionQuery.isError || !sessionQuery.error || !sessionId) return;
     const err = sessionQuery.error;
     if (isAxiosError(err) && err.response?.status === 404) {
       queryClient.removeQueries({ queryKey: wizardKeys.session(sessionId) });
+      hydratedSessionRef.current = null;
       setSessionId(null);
       setCurrentStep(1);
       setFurthestStep(1);
@@ -144,11 +151,11 @@ export function WizardProvider({ children }: { children: ReactNode }) {
         queryFn: () => fetchWizardSession(sessionId),
       });
       setLoadError(null);
-      setCurrentStep((prev) => Math.max(prev, data.currentStep));
       setFurthestStep((prev) => Math.max(prev, data.currentStep));
     } catch (e) {
       if (isAxiosError(e) && e.response?.status === 404) {
         queryClient.removeQueries({ queryKey: wizardKeys.session(sessionId) });
+        hydratedSessionRef.current = null;
         setSessionId(null);
         setCurrentStep(1);
         setFurthestStep(1);
@@ -199,6 +206,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     setLoadError(null);
     if (sessionId) {
       queryClient.removeQueries({ queryKey: wizardKeys.session(sessionId) });
+      hydratedSessionRef.current = null;
       setSessionId(null);
     }
     bootstrap.reset();

@@ -43,7 +43,12 @@ export function ResumeJsonDialog({
         </DialogHeader>
 
         <div className="flex items-center justify-end">
-          <Button type="button" variant="outline" size="sm" onClick={handleCopy}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleCopy}
+          >
             <CopyIcon data-icon="inline-start" />
             Copy JSON
           </Button>
@@ -56,4 +61,3 @@ export function ResumeJsonDialog({
     </Dialog>
   );
 }
-

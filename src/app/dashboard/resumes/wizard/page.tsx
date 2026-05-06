@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function WizardPage() {
-  const { userId } = await auth();
+  const userId = await auth();
   if (!userId) redirect("/sign-in");
 
   return <WizardShell />;

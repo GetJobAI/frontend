@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/ui/themes";
+import { AppQueryProvider } from "~/components/providers/AppQueryProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +31,9 @@ export default function RootLayout({
       }}
     >
       <html lang="en" className={`${geist.variable} dark`}>
-        <body>{children}</body>
+        <body>
+          <AppQueryProvider>{children}</AppQueryProvider>
+        </body>
       </html>
     </ClerkProvider>
   );

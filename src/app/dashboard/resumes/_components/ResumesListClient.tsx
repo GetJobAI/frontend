@@ -15,6 +15,7 @@ import {
 import type { ComponentType } from "react";
 
 import { ConfirmDeleteDialog } from "~/components/global/ConfirmDeleteDialog";
+import { LinkedInIcon } from "~/components/global/LinkedInIcon";
 import { ResumeJsonDialog } from "~/components/global/ResumeJsonDialog";
 import { Button } from "~/components/ui/button";
 import {
@@ -40,17 +41,6 @@ interface ResumesListClientProps {
   resumes: ResumeItem[];
 }
 
-const LinkedInIcon: ComponentType<{ className?: string }> = ({ className }) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={className}>
-    <path
-      d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"
-      strokeWidth="1.7"
-    />
-    <rect x="2" y="9" width="4" height="12" strokeWidth="1.7" />
-    <circle cx="4" cy="4" r="2" strokeWidth="1.7" />
-  </svg>
-);
-
 const createPaths: Array<{
   href: string;
   title: string;
@@ -73,7 +63,9 @@ const createPaths: Array<{
     href: "/dashboard/resumes/linkedin",
     title: "LinkedIn Import",
     description: "Import your LinkedIn ZIP export",
-    icon: LinkedInIcon,
+    icon: ({ className }) => (
+      <LinkedInIcon className={className} strokeWidth={1.7} />
+    ),
   },
 ];
 
@@ -165,15 +157,16 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
                     setSelectedResume(resume);
                   }
                 }}
-                className="group cursor-pointer flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-white/3"
+                className="group flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-white/3"
               >
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <p className="truncate text-sm font-medium text-white">
                     Resume {resume.id.slice(0, 8)}
                   </p>
                   <p className="text-xs text-neutral-500">
-                    {resume.inputMethod ?? "unknown"} · {resume.parseStatus ?? "pending"}{" "}
-                    · updated {new Date(resume.updatedAt).toLocaleString()}
+                    {resume.inputMethod ?? "unknown"} ·{" "}
+                    {resume.parseStatus ?? "pending"} · updated{" "}
+                    {new Date(resume.updatedAt).toLocaleString()}
                   </p>
                 </div>
 
@@ -282,4 +275,3 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
     </div>
   );
 }
-

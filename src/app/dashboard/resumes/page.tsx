@@ -28,7 +28,5 @@ export default async function ResumesPage() {
     .where(eq(resumes.userId, userId))
     .orderBy(desc(resumes.updatedAt));
 
-  return (
-    <ResumesListClient resumes={userResumes} />
-  );
+  return <ResumesListClient resumes={userResumes} />;
 }
