@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { wizardSessions } from "~/server/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
@@ -11,14 +12,17 @@ import {
 import { checkRateLimit } from "~/lib/rate-limit";
 
 export async function PATCH(
-  req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ sessionId: string; step: string }> },
 ) {
   try {
     const userId = await getUserId();
 
     if (!checkRateLimit(userId)) {
-      return Response.json({ error: "Rate limit exceeded" }, { status: 429 });
+      return NextResponse.json(
+        { error: "Rate limit exceeded" },
+        { status: 429 },
+      );
     }
 
     const { sessionId, step } = await params;
@@ -27,12 +31,15 @@ export async function PATCH(
 
     const schema = stepSchemas[stepNum];
     if (!schema) {
-      return Response.json({ error: "Invalid step" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid step" }, { status: 400 });
     }
 
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
-      return Response.json({ error: parsed.error.flatten() }, { status: 422 });
+      return NextResponse.json(
+        { error: parsed.error.flatten() },
+        { status: 422 },
+      );
     }
 
     const session = await db.query.wizardSessions.findFirst({
@@ -43,7 +50,7 @@ export async function PATCH(
       ),
     });
     if (!session) {
-      return Response.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
     const currentData = decryptStepData(session.stepData);
@@ -66,25 +73,28 @@ export async function PATCH(
       .returning({ id: wizardSessions.id });
 
     if (writeResult.length === 0) {
-      return Response.json(
+      return NextResponse.json(
         { error: "Session changed, please retry" },
         { status: 409 },
       );
     }
 
-    return Response.json({ ok: true });
+    return NextResponse.json({ ok: true });
   } catch (e) {
     if ((e as Error).message === "Unauthorized") {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     if (e instanceof StepDataDecryptError) {
       console.error("[wizard/steps/PATCH] decrypt failed", e);
-      return Response.json(
+      return NextResponse.json(
         { error: "Session data is corrupted and cannot be read" },
         { status: 500 },
       );
     }
     console.error("[wizard/steps/PATCH]", e);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

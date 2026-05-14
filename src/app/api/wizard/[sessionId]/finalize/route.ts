@@ -1,3 +1,4 @@
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { wizardSessions, resumes } from "~/server/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
@@ -7,7 +8,7 @@ import { assembleResumeJson } from "~/lib/assemble-resume";
 import { computeCompletenessScore } from "~/lib/completeness";
 
 export async function POST(
-  _req: Request,
+  _req: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> },
 ) {
   try {
@@ -21,7 +22,10 @@ export async function POST(
       ),
     });
     if (existingResume) {
-      return Response.json({ resumeId: existingResume.id, idempotent: true });
+      return NextResponse.json({
+        resumeId: existingResume.id,
+        idempotent: true,
+      });
     }
 
     const result = await db.transaction(async (tx) => {
@@ -75,34 +79,37 @@ export async function POST(
         ),
       });
       if (resumeAfterRace) {
-        return Response.json({
+        return NextResponse.json({
           resumeId: resumeAfterRace.id,
           idempotent: true,
         });
       }
-      return Response.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
     if ("error" in result) {
-      return Response.json(
+      return NextResponse.json(
         { error: result.error, score: result.score },
         { status: 422 },
       );
     }
 
-    return Response.json(result);
+    return NextResponse.json(result);
   } catch (e) {
     if ((e as Error).message === "Unauthorized") {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     if (e instanceof StepDataDecryptError) {
       console.error("[wizard/finalize/POST] decrypt failed", e);
-      return Response.json(
+      return NextResponse.json(
         { error: "Session data is corrupted and cannot be read" },
         { status: 500 },
       );
     }
     console.error("[wizard/finalize/POST]", e);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { wizardSessions } from "~/server/db/schema";
 import { getUserId } from "~/lib/auth";
@@ -24,7 +25,7 @@ export async function POST() {
           sessionIds: activeSessions.map((session) => session.id),
         });
       }
-      return Response.json({
+      return NextResponse.json({
         sessionId: existing.id,
         currentStep: existing.currentStep,
       });
@@ -39,15 +40,18 @@ export async function POST() {
       })
       .returning({ id: wizardSessions.id });
 
-    return Response.json(
+    return NextResponse.json(
       { sessionId: session!.id, currentStep: 1 },
       { status: 201 },
     );
   } catch (e) {
     if ((e as Error).message === "Unauthorized") {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     console.error("[wizard/POST]", e);
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
