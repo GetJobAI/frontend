@@ -19,7 +19,7 @@ function WizardBody() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center gap-4">
+      <div className="-m-6 flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-4 bg-black sm:-m-8">
         <div className="size-8 animate-spin rounded-full border-2 border-violet-500/30 border-t-violet-500" />
         <p className="text-xs text-neutral-600">Loading your session…</p>
       </div>

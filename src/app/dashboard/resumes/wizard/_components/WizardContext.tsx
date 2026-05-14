@@ -50,6 +50,7 @@ export function useWizard() {
 
 export function WizardProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
+  const didBootstrapRef = useRef(false);
   const hydratedSessionRef = useRef<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
@@ -67,6 +68,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
+    if (didBootstrapRef.current) return;
+    didBootstrapRef.current = true;
     void (async () => {
       try {
         const created = await bootstrap.mutateAsync();
@@ -75,8 +78,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
         // error handled in onError
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only bootstrap
-  }, []);
+  }, [bootstrap]);
 
   const sessionQuery = useQuery({
     queryKey: wizardKeys.session(sessionId ?? ""),
