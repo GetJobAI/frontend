@@ -1,21 +1,49 @@
 import { z } from "zod";
 
+export const SUMMARY_MIN_LENGTH = 60;
+export const SUMMARY_MAX_LENGTH = 2000;
+
+export const styleEnum = z.enum(["minimal", "technical", "professional"]);
+
+export const sectionHeadingsSchema = z.object({
+  summary: z.string().trim().max(60).optional(),
+  experience: z.string().trim().max(60).optional(),
+  education: z.string().trim().max(60).optional(),
+  skills: z.string().trim().max(60).optional(),
+  certifications: z.string().trim().max(60).optional(),
+  projects: z.string().trim().max(60).optional(),
+  languages: z.string().trim().max(60).optional(),
+});
+
 export const step1Schema = z.object({
-  full_name: z.string().min(1, "Full name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  location: z.string().optional(),
-  linkedin_url: z.string().url().optional().or(z.literal("")),
-  portfolio_url: z.string().url().optional().or(z.literal("")),
-  target_role: z.string().min(1, "Target role is required"),
+  style: styleEnum.default("professional"),
+  contact: z.object({
+    name: z.string().min(1, "Name is required"),
+    email: z
+      .string()
+      .email("Invalid email address")
+      .optional()
+      .or(z.literal("")),
+    phone: z.string().optional(),
+    location: z.string().optional(),
+    linkedin: z.string().optional(),
+    github: z.string().optional(),
+  }),
+  headings: sectionHeadingsSchema.optional(),
 });
 
 export const step2Schema = z.object({
-  summary_text: z
+  summary: z
     .string()
     .trim()
-    .min(1, "Summary is required")
-    .max(2000, "Summary must be under 2000 characters")
+    .min(
+      SUMMARY_MIN_LENGTH,
+      `Summary must be at least ${SUMMARY_MIN_LENGTH} characters`,
+    )
+    .max(
+      SUMMARY_MAX_LENGTH,
+      `Summary must be under ${SUMMARY_MAX_LENGTH} characters`,
+    )
     .default(""),
 });
 
@@ -24,21 +52,12 @@ export const bulletSchema = z.string().max(500);
 export const step3Schema = z.object({
   experience: z.array(
     z.object({
-      company: z.string().min(1, "Company is required"),
-      title: z.string().min(1, "Job title is required"),
-      start_date: z
-        .string()
-        .regex(/^\d{4}-\d{2}$/, "Format: YYYY-MM")
-        .optional()
-        .or(z.literal("")),
-      end_date: z
-        .string()
-        .regex(/^\d{4}-\d{2}$/, "Format: YYYY-MM")
-        .nullable()
-        .optional()
-        .or(z.literal("")),
-      is_current: z.boolean().default(false),
+      company: z.string().optional().or(z.literal("")),
+      title: z.string().optional().or(z.literal("")),
+      dates: z.string().min(1, "Dates are required"),
+      location: z.string().optional(),
       bullets: z.array(bulletSchema).max(10).default([]),
+      hide: z.boolean().default(false),
     }),
   ),
 });
@@ -48,41 +67,23 @@ export const step4Schema = z.object({
     z.object({
       institution: z.string().min(1, "Institution is required"),
       degree: z.string().min(1, "Degree is required"),
-      field_of_study: z.string().optional(),
-      start_date: z
-        .string()
-        .regex(/^\d{4}-\d{2}$/, "Format: YYYY-MM")
-        .optional()
-        .or(z.literal("")),
-      end_date: z
-        .string()
-        .regex(/^\d{4}-\d{2}$/, "Format: YYYY-MM")
-        .nullable()
-        .optional()
-        .or(z.literal("")),
-      gpa: z.number().min(0).max(4).nullable().optional(),
+      dates: z.string().min(1, "Dates are required"),
+      location: z.string().optional(),
+      grade: z.string().optional(),
+      hide: z.boolean().default(false),
     }),
   ),
 });
 
-export const skillLevelEnum = z.enum(["beginner", "intermediate", "expert"]);
-export const skillCategoryEnum = z.enum([
-  "technical",
-  "domain",
-  "soft",
-  "certification",
-]);
-
 export const step5Schema = z.object({
-  skills: z
-    .array(
-      z.object({
-        name: z.string().min(1, "Skill name is required"),
-        category: skillCategoryEnum,
-        level: skillLevelEnum,
-      }),
-    )
-    .min(1, "Add at least one skill"),
+  skills: z.array(
+    z.object({
+      category: z.string().min(1, "Category is required"),
+      items: z
+        .array(z.string().trim().min(1, "Skill item cannot be empty"))
+        .min(1, "Add at least one skill item"),
+    }),
+  ),
 });
 
 export const step6Schema = z.object({
@@ -90,33 +91,20 @@ export const step6Schema = z.object({
     .array(
       z.object({
         name: z.string().min(1, "Certification name is required"),
-        issuing_org: z.string().optional(),
-        issue_date: z
-          .string()
-          .regex(/^\d{4}-\d{2}$/, "Format: YYYY-MM")
-          .optional()
-          .or(z.literal("")),
-        expiry_date: z
-          .string()
-          .regex(/^\d{4}-\d{2}$/, "Format: YYYY-MM")
-          .nullable()
-          .optional()
-          .or(z.literal("")),
-        credential_id: z.string().optional(),
+        issuer: z.string().min(1, "Issuer is required"),
+        date: z.string().min(1, "Date is required"),
       }),
     )
     .optional()
     .default([]),
 });
 
-export const cefrEnum = z.enum(["A1", "A2", "B1", "B2", "C1", "C2", "Native"]);
-
 export const step7Schema = z.object({
   languages: z
     .array(
       z.object({
-        language: z.string().min(1, "Language is required"),
-        proficiency: cefrEnum,
+        name: z.string().min(1, "Language is required"),
+        level: z.string().min(1, "Level is required"),
       }),
     )
     .optional()
@@ -128,20 +116,8 @@ export const step8Schema = z.object({
     .array(
       z.object({
         name: z.string().min(1, "Project name is required"),
-        description: z.string().optional(),
-        url: z.string().url().optional().or(z.literal("")),
-        technologies: z.array(z.string()).default([]),
-        start_date: z
-          .string()
-          .regex(/^\d{4}-\d{2}$/, "Format: YYYY-MM")
-          .optional()
-          .or(z.literal("")),
-        end_date: z
-          .string()
-          .regex(/^\d{4}-\d{2}$/, "Format: YYYY-MM")
-          .nullable()
-          .optional()
-          .or(z.literal("")),
+        description: z.string().min(1, "Description is required"),
+        url: z.string().optional(),
       }),
     )
     .optional()
@@ -162,11 +138,11 @@ export const stepSchemas = {
 export type StepNumber = keyof typeof stepSchemas;
 
 export const STEP_META = [
-  { step: 1, label: "Personal info", description: "Who are you?" },
-  { step: 2, label: "Summary", description: "Your professional headline" },
+  { step: 1, label: "Contact", description: "Identity, links, and style" },
+  { step: 2, label: "Summary", description: "Professional overview" },
   { step: 3, label: "Experience", description: "Work history" },
-  { step: 4, label: "Education", description: "Degrees & courses" },
-  { step: 5, label: "Skills", description: "What you know" },
+  { step: 4, label: "Education", description: "Academic background" },
+  { step: 5, label: "Skills", description: "Skill groups and keywords" },
   { step: 6, label: "Certifications", description: "Credentials (optional)" },
   {
     step: 7,

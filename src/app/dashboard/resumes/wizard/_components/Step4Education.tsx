@@ -11,6 +11,8 @@ import { WizardNavButtons } from "./WizardNavButtons";
 import { Plus } from "lucide-react";
 import { Field, FieldLabel, FieldError } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
+import { Controller } from "react-hook-form";
+import { Checkbox } from "~/components/ui/checkbox";
 
 type Step4Data = z.infer<typeof step4Schema>;
 
@@ -19,7 +21,8 @@ export function Step4Education() {
   const saved = stepData[4] as Partial<Step4Data> | undefined;
 
   const form = useForm<Step4Data>({
-    resolver: zodResolver(step4Schema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
+    resolver: zodResolver(step4Schema) as any,
     defaultValues: saved ?? { education: [] },
     mode: "onChange",
   });
@@ -35,10 +38,10 @@ export function Step4Education() {
     append({
       institution: "",
       degree: "",
-      field_of_study: "",
-      start_date: "",
-      end_date: "",
-      gpa: null,
+      dates: "",
+      location: "",
+      grade: "",
+      hide: false,
     });
 
   const onSubmit = form.handleSubmit(() => nextStep());
@@ -109,88 +112,79 @@ export function Step4Education() {
               </Field>
 
               <Field
-                data-invalid={
-                  !!form.formState.errors.education?.[idx]?.field_of_study
-                }
+                data-invalid={!!form.formState.errors.education?.[idx]?.dates}
               >
-                <FieldLabel htmlFor={`edu-field-${idx}`}>
-                  Field of Study
+                <FieldLabel htmlFor={`edu-dates-${idx}`}>
+                  Dates <span className="ml-0.5 text-violet-400">*</span>
                 </FieldLabel>
                 <Input
-                  id={`edu-field-${idx}`}
-                  placeholder="Computer Science"
-                  {...form.register(`education.${idx}.field_of_study`)}
-                  aria-invalid={
-                    !!form.formState.errors.education?.[idx]?.field_of_study
-                  }
+                  id={`edu-dates-${idx}`}
+                  placeholder="09.2016 - 06.2021"
+                  {...form.register(`education.${idx}.dates`)}
+                  aria-invalid={!!form.formState.errors.education?.[idx]?.dates}
                 />
                 <FieldError>
-                  {
-                    form.formState.errors.education?.[idx]?.field_of_study
-                      ?.message
-                  }
+                  {form.formState.errors.education?.[idx]?.dates?.message}
                 </FieldError>
               </Field>
 
               <Field
                 data-invalid={
-                  !!form.formState.errors.education?.[idx]?.start_date
+                  !!form.formState.errors.education?.[idx]?.location
                 }
               >
-                <FieldLabel htmlFor={`edu-start-${idx}`}>Start Date</FieldLabel>
+                <FieldLabel htmlFor={`edu-location-${idx}`}>
+                  Location
+                </FieldLabel>
                 <Input
-                  id={`edu-start-${idx}`}
-                  placeholder="2017-09"
-                  {...form.register(`education.${idx}.start_date`)}
+                  id={`edu-location-${idx}`}
+                  placeholder="Lviv, Ukraine"
+                  {...form.register(`education.${idx}.location`)}
                   aria-invalid={
-                    !!form.formState.errors.education?.[idx]?.start_date
+                    !!form.formState.errors.education?.[idx]?.location
                   }
                 />
                 <FieldError>
-                  {form.formState.errors.education?.[idx]?.start_date?.message}
+                  {form.formState.errors.education?.[idx]?.location?.message}
                 </FieldError>
               </Field>
 
               <Field
-                data-invalid={
-                  !!form.formState.errors.education?.[idx]?.end_date
-                }
+                data-invalid={!!form.formState.errors.education?.[idx]?.grade}
               >
-                <FieldLabel htmlFor={`edu-end-${idx}`}>End Date</FieldLabel>
+                <FieldLabel htmlFor={`edu-grade-${idx}`}>Grade</FieldLabel>
                 <Input
-                  id={`edu-end-${idx}`}
-                  placeholder="2021-05"
-                  {...form.register(`education.${idx}.end_date`)}
-                  aria-invalid={
-                    !!form.formState.errors.education?.[idx]?.end_date
-                  }
+                  id={`edu-grade-${idx}`}
+                  placeholder="5.0 / 5.0"
+                  {...form.register(`education.${idx}.grade`)}
+                  aria-invalid={!!form.formState.errors.education?.[idx]?.grade}
                 />
                 <FieldError>
-                  {form.formState.errors.education?.[idx]?.end_date?.message}
+                  {form.formState.errors.education?.[idx]?.grade?.message}
                 </FieldError>
               </Field>
 
-              <Field
-                data-invalid={!!form.formState.errors.education?.[idx]?.gpa}
-              >
-                <FieldLabel htmlFor={`edu-gpa-${idx}`}>GPA (0–4.0)</FieldLabel>
-                <Input
-                  id={`edu-gpa-${idx}`}
-                  type="number"
-                  min={0}
-                  max={4}
-                  step={0.01}
-                  placeholder="3.8"
-                  {...form.register(`education.${idx}.gpa`, {
-                    setValueAs: (v: string) =>
-                      v === "" ? null : parseFloat(v),
-                  })}
-                  aria-invalid={!!form.formState.errors.education?.[idx]?.gpa}
-                />
-                <FieldError>
-                  {form.formState.errors.education?.[idx]?.gpa?.message}
-                </FieldError>
-              </Field>
+              <Controller
+                control={form.control}
+                name={`education.${idx}.hide`}
+                render={({ field }) => (
+                  <Field orientation="horizontal" className="sm:col-span-2">
+                    <Checkbox
+                      id={`edu-hide-${idx}`}
+                      checked={field.value}
+                      onCheckedChange={(checked) =>
+                        field.onChange(Boolean(checked))
+                      }
+                    />
+                    <FieldLabel
+                      htmlFor={`edu-hide-${idx}`}
+                      className="cursor-pointer font-normal text-neutral-500"
+                    >
+                      Hide this entry from final resume
+                    </FieldLabel>
+                  </Field>
+                )}
+              />
             </div>
           </CardRow>
         ))}

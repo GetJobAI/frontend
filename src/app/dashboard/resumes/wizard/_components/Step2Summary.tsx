@@ -3,7 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
-import { step2Schema } from "~/lib/wizard-schemas";
+import {
+  SUMMARY_MAX_LENGTH,
+  SUMMARY_MIN_LENGTH,
+  step2Schema,
+} from "~/lib/wizard-schemas";
 import { useWizardAutoSave } from "~/hooks/useWizardAutoSave";
 import { useWizard } from "./WizardContext";
 import { SectionHeader } from "./WizardField";
@@ -26,13 +30,13 @@ export function Step2Summary() {
   const form = useForm<Step2Data>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
     resolver: zodResolver(step2Schema) as any,
-    defaultValues: saved ?? { summary_text: "" },
+    defaultValues: saved ?? { summary: "" },
     mode: "onChange",
   });
 
   useWizardAutoSave(sessionId, 2, form.watch);
 
-  const summaryText = form.watch("summary_text") ?? "";
+  const summaryText = form.watch("summary") ?? "";
   const charCount = summaryText.length;
 
   const onSubmit = form.handleSubmit(() => nextStep());
@@ -58,27 +62,26 @@ export function Step2Summary() {
         </p>
       </div>
 
-      <Field data-invalid={!!form.formState.errors.summary_text}>
+      <Field data-invalid={!!form.formState.errors.summary}>
         <div className="flex w-full items-center justify-between">
-          <FieldLabel htmlFor="summary_text">Summary</FieldLabel>
+          <FieldLabel htmlFor="summary">Summary</FieldLabel>
           <span
-            className={`text-[10px] tabular-nums ${charCount > 1800 ? "text-amber-400" : "text-neutral-700"}`}
+            className={`text-[10px] tabular-nums ${charCount > SUMMARY_MAX_LENGTH - 200 ? "text-amber-400" : "text-neutral-700"}`}
           >
-            {charCount}/2000
+            {charCount}/{SUMMARY_MAX_LENGTH}
           </span>
         </div>
         <Textarea
-          id="summary_text"
+          id="summary"
           placeholder="Results-driven software engineer with 5+ years building scalable web applications. Passionate about clean architecture and developer experience. Seeking to bring full-stack expertise to a product-focused team."
           rows={5}
-          {...form.register("summary_text")}
-          aria-invalid={!!form.formState.errors.summary_text}
+          {...form.register("summary")}
+          aria-invalid={!!form.formState.errors.summary}
         />
         <FieldDescription>
-          Required — this section cannot be empty. We recommend using at least
-          20 characters.
+          Required. Use at least {SUMMARY_MIN_LENGTH} characters.
         </FieldDescription>
-        <FieldError>{form.formState.errors.summary_text?.message}</FieldError>
+        <FieldError>{form.formState.errors.summary?.message}</FieldError>
       </Field>
 
       <WizardNavButtons isSubmitting={form.formState.isSubmitting} />

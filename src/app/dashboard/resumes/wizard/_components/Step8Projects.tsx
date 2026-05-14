@@ -8,7 +8,7 @@ import { useWizardAutoSave } from "~/hooks/useWizardAutoSave";
 import { useWizard } from "./WizardContext";
 import { SectionHeader, AddButton, RemoveButton, CardRow } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
-import { Plus, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Field, FieldLabel, FieldError } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
@@ -38,9 +38,6 @@ export function Step8Projects() {
       name: "",
       description: "",
       url: "",
-      technologies: [],
-      start_date: "",
-      end_date: null,
     });
 
   const onSubmit = form.handleSubmit(() => nextStep());
@@ -92,28 +89,13 @@ export function Step8Projects() {
               </Field>
 
               <Field
-                data-invalid={!!form.formState.errors.projects?.[idx]?.url}
-              >
-                <FieldLabel htmlFor={`proj-url-${idx}`}>Project URL</FieldLabel>
-                <Input
-                  id={`proj-url-${idx}`}
-                  placeholder="https://github.com/you/project"
-                  {...form.register(`projects.${idx}.url`)}
-                  aria-invalid={!!form.formState.errors.projects?.[idx]?.url}
-                />
-                <FieldError>
-                  {form.formState.errors.projects?.[idx]?.url?.message}
-                </FieldError>
-              </Field>
-
-              <Field
                 className="sm:col-span-2"
                 data-invalid={
                   !!form.formState.errors.projects?.[idx]?.description
                 }
               >
                 <FieldLabel htmlFor={`proj-desc-${idx}`}>
-                  Description
+                  Description <span className="ml-0.5 text-violet-400">*</span>
                 </FieldLabel>
                 <Textarea
                   id={`proj-desc-${idx}`}
@@ -130,44 +112,20 @@ export function Step8Projects() {
               </Field>
 
               <Field
-                data-invalid={
-                  !!form.formState.errors.projects?.[idx]?.start_date
-                }
+                className="sm:col-span-2"
+                data-invalid={!!form.formState.errors.projects?.[idx]?.url}
               >
-                <FieldLabel htmlFor={`proj-start-${idx}`}>
-                  Start Date
-                </FieldLabel>
+                <FieldLabel htmlFor={`proj-url-${idx}`}>Project URL</FieldLabel>
                 <Input
-                  id={`proj-start-${idx}`}
-                  placeholder="2023-01"
-                  {...form.register(`projects.${idx}.start_date`)}
-                  aria-invalid={
-                    !!form.formState.errors.projects?.[idx]?.start_date
-                  }
+                  id={`proj-url-${idx}`}
+                  placeholder="github.com/you/project"
+                  {...form.register(`projects.${idx}.url`)}
+                  aria-invalid={!!form.formState.errors.projects?.[idx]?.url}
                 />
                 <FieldError>
-                  {form.formState.errors.projects?.[idx]?.start_date?.message}
+                  {form.formState.errors.projects?.[idx]?.url?.message}
                 </FieldError>
               </Field>
-
-              <Field
-                data-invalid={!!form.formState.errors.projects?.[idx]?.end_date}
-              >
-                <FieldLabel htmlFor={`proj-end-${idx}`}>End Date</FieldLabel>
-                <Input
-                  id={`proj-end-${idx}`}
-                  placeholder="2023-06"
-                  {...form.register(`projects.${idx}.end_date`)}
-                  aria-invalid={
-                    !!form.formState.errors.projects?.[idx]?.end_date
-                  }
-                />
-                <FieldError>
-                  {form.formState.errors.projects?.[idx]?.end_date?.message}
-                </FieldError>
-              </Field>
-
-              <TechField form={form} projIdx={idx} />
             </div>
           </CardRow>
         ))}
@@ -180,55 +138,5 @@ export function Step8Projects() {
 
       <WizardNavButtons isSubmitting={form.formState.isSubmitting} />
     </form>
-  );
-}
-
-function TechField({
-  form,
-  projIdx,
-}: {
-  form: ReturnType<typeof useForm<Step8Data>>;
-  projIdx: number;
-}) {
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: `projects.${projIdx}.technologies` as never,
-  });
-
-  return (
-    <div className="flex flex-col gap-2 sm:col-span-2">
-      <FieldLabel>Technologies</FieldLabel>
-      <div className="flex flex-wrap gap-2">
-        {(fields as unknown as { id: string }[]).map((f, ti) => (
-          <span
-            key={f.id}
-            className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] text-neutral-300"
-          >
-            <input
-              className="w-16 min-w-0 bg-transparent text-[11px] text-neutral-300 placeholder:text-neutral-700 focus:outline-none"
-              placeholder="React"
-              {...form.register(
-                `projects.${projIdx}.technologies.${ti}` as never,
-              )}
-            />
-            <button
-              type="button"
-              onClick={() => remove(ti)}
-              className="cursor-pointer text-neutral-600 transition-colors hover:text-red-400"
-            >
-              <X className="size-2.5" strokeWidth={2.5} />
-            </button>
-          </span>
-        ))}
-        <button
-          type="button"
-          onClick={() => append("")}
-          className="flex cursor-pointer items-center gap-1 rounded-full border border-dashed border-white/10 px-2.5 py-0.5 text-[11px] text-neutral-600 transition-colors hover:border-violet-500/30 hover:text-violet-400"
-        >
-          <Plus className="size-2.5" strokeWidth={2.5} />
-          Add tech
-        </button>
-      </div>
-    </div>
   );
 }

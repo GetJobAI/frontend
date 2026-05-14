@@ -38,10 +38,10 @@ export function Step3Experience() {
     append({
       company: "",
       title: "",
-      start_date: "",
-      end_date: "",
-      is_current: false,
+      dates: "",
+      location: "",
       bullets: [],
+      hide: false,
     });
 
   const onSubmit = form.handleSubmit(() => nextStep());
@@ -114,69 +114,67 @@ export function Step3Experience() {
               </Field>
 
               <Field
-                data-invalid={
-                  !!form.formState.errors.experience?.[idx]?.start_date
-                }
+                data-invalid={!!form.formState.errors.experience?.[idx]?.dates}
               >
-                <FieldLabel htmlFor={`exp-start-${idx}`}>Start Date</FieldLabel>
+                <FieldLabel htmlFor={`exp-dates-${idx}`}>
+                  Dates <span className="ml-0.5 text-violet-400">*</span>
+                </FieldLabel>
                 <Input
-                  id={`exp-start-${idx}`}
-                  placeholder="2021-06"
-                  {...form.register(`experience.${idx}.start_date`)}
+                  id={`exp-dates-${idx}`}
+                  placeholder="03.2022 - present"
+                  {...form.register(`experience.${idx}.dates`)}
                   aria-invalid={
-                    !!form.formState.errors.experience?.[idx]?.start_date
+                    !!form.formState.errors.experience?.[idx]?.dates
                   }
                 />
                 <FieldError>
-                  {form.formState.errors.experience?.[idx]?.start_date?.message}
+                  {form.formState.errors.experience?.[idx]?.dates?.message}
                 </FieldError>
               </Field>
 
               <Field
                 data-invalid={
-                  !!form.formState.errors.experience?.[idx]?.end_date
+                  !!form.formState.errors.experience?.[idx]?.location
                 }
               >
-                <FieldLabel htmlFor={`exp-end-${idx}`}>End Date</FieldLabel>
-                <div className="flex flex-col gap-2.5">
-                  <Input
-                    id={`exp-end-${idx}`}
-                    placeholder="2023-12"
-                    disabled={!!form.watch(`experience.${idx}.is_current`)}
-                    {...form.register(`experience.${idx}.end_date`)}
-                    aria-invalid={
-                      !!form.formState.errors.experience?.[idx]?.end_date
-                    }
-                  />
-                  <Controller
-                    control={form.control}
-                    name={`experience.${idx}.is_current`}
-                    render={({ field }) => (
-                      <Field
-                        orientation="horizontal"
-                        className="items-center gap-2"
-                      >
-                        <Checkbox
-                          id={`exp-current-${idx}`}
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                        <FieldLabel
-                          htmlFor={`exp-current-${idx}`}
-                          className="cursor-pointer font-normal text-neutral-500"
-                        >
-                          Currently working here
-                        </FieldLabel>
-                      </Field>
-                    )}
-                  />
-                </div>
+                <FieldLabel htmlFor={`exp-location-${idx}`}>
+                  Location
+                </FieldLabel>
+                <Input
+                  id={`exp-location-${idx}`}
+                  placeholder="Berlin, Germany"
+                  {...form.register(`experience.${idx}.location`)}
+                  aria-invalid={
+                    !!form.formState.errors.experience?.[idx]?.location
+                  }
+                />
                 <FieldError>
-                  {form.formState.errors.experience?.[idx]?.end_date?.message}
+                  {form.formState.errors.experience?.[idx]?.location?.message}
                 </FieldError>
               </Field>
 
               <BulletsField form={form} expIdx={idx} />
+              <Controller
+                control={form.control}
+                name={`experience.${idx}.hide`}
+                render={({ field }) => (
+                  <Field orientation="horizontal" className="sm:col-span-2">
+                    <Checkbox
+                      id={`exp-hide-${idx}`}
+                      checked={field.value}
+                      onCheckedChange={(checked) =>
+                        field.onChange(Boolean(checked))
+                      }
+                    />
+                    <FieldLabel
+                      htmlFor={`exp-hide-${idx}`}
+                      className="cursor-pointer font-normal text-neutral-500"
+                    >
+                      Hide this entry from final resume
+                    </FieldLabel>
+                  </Field>
+                )}
+              />
             </div>
           </CardRow>
         ))}

@@ -155,7 +155,7 @@ export function DashboardSidebar({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen flex-1 flex-col">
         <main
           id="dashboard-main"
-          className="app-main-noise flex flex-1 flex-col p-5 pt-16 md:p-16"
+          className="app-main-noise flex flex-1 flex-col p-5 pt-16 pb-16 md:p-16"
         >
           {children}
         </main>

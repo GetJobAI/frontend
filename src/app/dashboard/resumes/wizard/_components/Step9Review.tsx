@@ -22,7 +22,11 @@ import {
   Info,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { computeCompletenessScore, getStepStatus } from "~/lib/completeness";
+import {
+  areRequiredStepsComplete,
+  computeCompletenessScore,
+  getStepStatus,
+} from "~/lib/completeness";
 import {
   Popover,
   PopoverContent,
@@ -64,7 +68,8 @@ export function Step9Review() {
   }, [refreshSession]);
 
   const score = computeCompletenessScore(stepData);
-  const canFinalize = score >= 60;
+  const requiredStepsComplete = areRequiredStepsComplete(stepData);
+  const canFinalize = score >= 60 && requiredStepsComplete;
 
   const s1 = (stepData[1] ?? {}) as Record<string, unknown>;
   const s2 = (stepData[2] ?? {}) as Record<string, unknown>;
@@ -74,6 +79,7 @@ export function Step9Review() {
   const s6 = (stepData[6] ?? {}) as Record<string, unknown>;
   const s7 = (stepData[7] ?? {}) as Record<string, unknown>;
   const s8 = (stepData[8] ?? {}) as Record<string, unknown>;
+  const contact = (s1.contact ?? {}) as Record<string, unknown>;
 
   const status1 = getStepStatus(1, stepData);
   const status2 = getStepStatus(2, stepData);
@@ -97,8 +103,8 @@ export function Step9Review() {
       label: "Personal info",
       icon: <User className="size-4" />,
       value:
-        typeof s1.full_name === "string"
-          ? `${s1.full_name} · ${typeof s1.email === "string" ? s1.email : ""}`
+        typeof contact.name === "string"
+          ? `${contact.name} · ${typeof contact.email === "string" ? contact.email : ""}`
           : "Not filled",
       filled: status1.filled,
       required: status1.required,
@@ -109,8 +115,8 @@ export function Step9Review() {
       label: "Summary",
       icon: <FileText className="size-4" />,
       value:
-        typeof s2.summary_text === "string" && s2.summary_text.length > 0
-          ? `${s2.summary_text.slice(0, 80)}…`
+        typeof s2.summary === "string" && s2.summary.length > 0
+          ? `${s2.summary.slice(0, 80)}…`
           : "Not filled",
       filled: status2.filled,
       required: status2.required,
@@ -254,8 +260,9 @@ export function Step9Review() {
         {!canFinalize && (
           <p className="mt-2 flex items-center gap-1.5 text-[11px] text-red-400">
             <AlertCircle className="size-3" />
-            You need at least 60% to finalize. Complete required sections to
-            continue.
+            {requiredStepsComplete
+              ? "You need at least 60% to finalize."
+              : "Complete all required sections before finalizing."}
           </p>
         )}
       </div>

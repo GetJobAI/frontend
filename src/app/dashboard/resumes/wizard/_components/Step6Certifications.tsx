@@ -35,10 +35,8 @@ export function Step6Certifications() {
   const addCert = () =>
     append({
       name: "",
-      issuing_org: "",
-      issue_date: "",
-      expiry_date: "",
-      credential_id: "",
+      issuer: "",
+      date: "",
     });
 
   const onSubmit = form.handleSubmit(() => nextStep());
@@ -97,97 +95,43 @@ export function Step6Certifications() {
 
               <Field
                 data-invalid={
-                  !!form.formState.errors.certifications?.[idx]?.issuing_org
+                  !!form.formState.errors.certifications?.[idx]?.issuer
                 }
               >
                 <FieldLabel htmlFor={`cert-org-${idx}`}>
-                  Issuing Organization
+                  Issuer <span className="ml-0.5 text-violet-400">*</span>
                 </FieldLabel>
                 <Input
                   id={`cert-org-${idx}`}
                   placeholder="Amazon Web Services"
-                  {...form.register(`certifications.${idx}.issuing_org`)}
+                  {...form.register(`certifications.${idx}.issuer`)}
                   aria-invalid={
-                    !!form.formState.errors.certifications?.[idx]?.issuing_org
+                    !!form.formState.errors.certifications?.[idx]?.issuer
                   }
                 />
                 <FieldError>
-                  {
-                    form.formState.errors.certifications?.[idx]?.issuing_org
-                      ?.message
-                  }
+                  {form.formState.errors.certifications?.[idx]?.issuer?.message}
                 </FieldError>
               </Field>
 
               <Field
                 data-invalid={
-                  !!form.formState.errors.certifications?.[idx]?.credential_id
+                  !!form.formState.errors.certifications?.[idx]?.date
                 }
               >
-                <FieldLabel htmlFor={`cert-id-${idx}`}>
-                  Credential ID
+                <FieldLabel htmlFor={`cert-date-${idx}`}>
+                  Date <span className="ml-0.5 text-violet-400">*</span>
                 </FieldLabel>
                 <Input
-                  id={`cert-id-${idx}`}
-                  placeholder="ABC-12345"
-                  {...form.register(`certifications.${idx}.credential_id`)}
+                  id={`cert-date-${idx}`}
+                  placeholder="11.2023"
+                  {...form.register(`certifications.${idx}.date`)}
                   aria-invalid={
-                    !!form.formState.errors.certifications?.[idx]?.credential_id
+                    !!form.formState.errors.certifications?.[idx]?.date
                   }
                 />
                 <FieldError>
-                  {
-                    form.formState.errors.certifications?.[idx]?.credential_id
-                      ?.message
-                  }
-                </FieldError>
-              </Field>
-
-              <Field
-                data-invalid={
-                  !!form.formState.errors.certifications?.[idx]?.issue_date
-                }
-              >
-                <FieldLabel htmlFor={`cert-issue-${idx}`}>
-                  Issue Date
-                </FieldLabel>
-                <Input
-                  id={`cert-issue-${idx}`}
-                  placeholder="2022-04"
-                  {...form.register(`certifications.${idx}.issue_date`)}
-                  aria-invalid={
-                    !!form.formState.errors.certifications?.[idx]?.issue_date
-                  }
-                />
-                <FieldError>
-                  {
-                    form.formState.errors.certifications?.[idx]?.issue_date
-                      ?.message
-                  }
-                </FieldError>
-              </Field>
-
-              <Field
-                data-invalid={
-                  !!form.formState.errors.certifications?.[idx]?.expiry_date
-                }
-              >
-                <FieldLabel htmlFor={`cert-expiry-${idx}`}>
-                  Expiry Date
-                </FieldLabel>
-                <Input
-                  id={`cert-expiry-${idx}`}
-                  placeholder="2025-04"
-                  {...form.register(`certifications.${idx}.expiry_date`)}
-                  aria-invalid={
-                    !!form.formState.errors.certifications?.[idx]?.expiry_date
-                  }
-                />
-                <FieldError>
-                  {
-                    form.formState.errors.certifications?.[idx]?.expiry_date
-                      ?.message
-                  }
+                  {form.formState.errors.certifications?.[idx]?.date?.message}
                 </FieldError>
               </Field>
             </div>

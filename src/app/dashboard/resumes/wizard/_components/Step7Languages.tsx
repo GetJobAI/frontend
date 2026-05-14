@@ -22,7 +22,7 @@ import { Controller } from "react-hook-form";
 
 type Step7Data = z.infer<typeof step7Schema>;
 
-const CEFR_OPTIONS = [
+const LEVEL_OPTIONS = [
   { value: "A1", label: "A1 — Beginner" },
   { value: "A2", label: "A2 — Elementary" },
   { value: "B1", label: "B1 — Intermediate" },
@@ -50,7 +50,7 @@ export function Step7Languages() {
 
   useWizardAutoSave(sessionId, 7, form.watch);
 
-  const addLanguage = () => append({ language: "", proficiency: "B2" });
+  const addLanguage = () => append({ name: "", level: "B2" });
 
   const onSubmit = form.handleSubmit(() => nextStep());
 
@@ -80,9 +80,7 @@ export function Step7Languages() {
           >
             <div className="col-span-2 sm:col-span-1">
               <Field
-                data-invalid={
-                  !!form.formState.errors.languages?.[idx]?.language
-                }
+                data-invalid={!!form.formState.errors.languages?.[idx]?.name}
               >
                 <FieldLabel htmlFor={`lang-name-${idx}`}>
                   Language <span className="ml-0.5 text-violet-400">*</span>
@@ -90,13 +88,11 @@ export function Step7Languages() {
                 <Input
                   id={`lang-name-${idx}`}
                   placeholder="English"
-                  {...form.register(`languages.${idx}.language`)}
-                  aria-invalid={
-                    !!form.formState.errors.languages?.[idx]?.language
-                  }
+                  {...form.register(`languages.${idx}.name`)}
+                  aria-invalid={!!form.formState.errors.languages?.[idx]?.name}
                 />
                 <FieldError>
-                  {form.formState.errors.languages?.[idx]?.language?.message}
+                  {form.formState.errors.languages?.[idx]?.name?.message}
                 </FieldError>
               </Field>
             </div>
@@ -108,14 +104,14 @@ export function Step7Languages() {
                 </FieldLabel>
                 <Controller
                   control={form.control}
-                  name={`languages.${idx}.proficiency`}
+                  name={`languages.${idx}.level`}
                   render={({ field }) => (
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger id={`lang-prof-${idx}`}>
                         <SelectValue placeholder="Select Proficiency" />
                       </SelectTrigger>
                       <SelectContent>
-                        {CEFR_OPTIONS.map((o) => (
+                        {LEVEL_OPTIONS.map((o) => (
                           <SelectItem key={o.value} value={o.value}>
                             {o.label}
                           </SelectItem>

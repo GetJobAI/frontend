@@ -1,11 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { wizardSessions, resumes } from "~/server/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { getUserId } from "~/lib/auth";
 import { decryptStepData, StepDataDecryptError } from "~/lib/crypto";
 import { assembleResumeJson } from "~/lib/assemble-resume";
-import { computeCompletenessScore } from "~/lib/completeness";
+import {
+  areRequiredStepsComplete,
+  computeCompletenessScore,
+} from "~/lib/completeness";
 
 export async function POST(
   _req: NextRequest,
@@ -42,6 +45,14 @@ export async function POST(
 
       const stepData = decryptStepData(session.stepData);
       const score = computeCompletenessScore(stepData);
+      const requiredStepsComplete = areRequiredStepsComplete(stepData);
+
+      if (!requiredStepsComplete) {
+        return {
+          error: "Required wizard sections are incomplete",
+          score,
+        } as const;
+      }
 
       if (score < 60) {
         return { error: "Completeness score below 60%", score } as const;

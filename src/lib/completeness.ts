@@ -1,5 +1,7 @@
+import { SUMMARY_MIN_LENGTH } from "~/lib/wizard-schemas";
+
 const WEIGHTS: Record<number, number> = {
-  1: 15, // Personal info
+  1: 15, // Contact + style
   2: 15, // Summary
   3: 30, // Work experience (heaviest — most ATS impact)
   4: 15, // Education
@@ -25,18 +27,27 @@ export function stepIsFilled(
   if (!data) return false;
   switch (step) {
     case 1:
-      return !!(data.full_name && data.email && data.target_role);
+      if (!data.contact || typeof data.contact !== "object") return false;
+      const contact = data.contact as { name?: unknown; email?: unknown };
+      const name = contact.name;
+      const email = contact.email;
+      return !!(
+        typeof name === "string" &&
+        name.trim().length > 0 &&
+        typeof email === "string" &&
+        email.trim().length > 0
+      );
     case 2:
       return !!(
-        typeof data.summary_text === "string" &&
-        data.summary_text.trim().length >= 20
+        typeof data.summary === "string" &&
+        data.summary.trim().length >= SUMMARY_MIN_LENGTH
       );
     case 3:
       return Array.isArray(data.experience) && data.experience.length > 0;
     case 4:
       return Array.isArray(data.education) && data.education.length > 0;
     case 5:
-      return Array.isArray(data.skills) && data.skills.length >= 3;
+      return Array.isArray(data.skills) && data.skills.length > 0;
     case 6:
       return (
         Array.isArray(data.certifications) && data.certifications.length > 0
@@ -64,15 +75,15 @@ export function getStepStatus(step: number, stepData: Record<string, unknown>) {
   const reason = (() => {
     switch (step) {
       case 1:
-        return "Add full name, email, and target role.";
+        return "Add your name and email in contact details.";
       case 2:
-        return "Add at least 20 characters in your summary.";
+        return `Add at least ${SUMMARY_MIN_LENGTH} characters in your summary.`;
       case 3:
         return "Add at least one experience entry.";
       case 4:
         return "Add at least one education entry.";
       case 5:
-        return "Add at least 3 skills.";
+        return "Add at least one skill group.";
       default:
         return "Optional section not filled yet.";
     }
@@ -88,4 +99,19 @@ export function computeCompletenessScore(
     const data = getDataForStep(stepData, Number(step));
     return total + (stepIsFilled(Number(step), data) ? weight : 0);
   }, 0);
+}
+
+export function getMissingRequiredSteps(
+  stepData: Record<string, unknown>,
+): number[] {
+  return Array.from(REQUIRED_STEPS).filter((step) => {
+    const data = getDataForStep(stepData, step);
+    return !stepIsFilled(step, data);
+  });
+}
+
+export function areRequiredStepsComplete(
+  stepData: Record<string, unknown>,
+): boolean {
+  return getMissingRequiredSteps(stepData).length === 0;
 }
