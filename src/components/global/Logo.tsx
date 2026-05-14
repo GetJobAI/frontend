@@ -6,9 +6,16 @@ interface LogoProps {
   className?: string;
   size?: "sm" | "md" | "lg";
   href?: string;
+  /** When false, only the wordmark is shown (e.g. to align with sidebar menu column). */
+  showMark?: boolean;
 }
 
-export function Logo({ className, size = "md", href = "/" }: LogoProps) {
+export function Logo({
+  className,
+  size = "md",
+  href = "/",
+  showMark = true,
+}: LogoProps) {
   const sizeClasses = {
     sm: "text-lg",
     md: "text-xl",
@@ -28,18 +35,20 @@ export function Logo({ className, size = "md", href = "/" }: LogoProps) {
     </span>
   );
 
+  const rowClass = cn("inline-flex items-center", showMark ? "gap-2" : "pl-3");
+
   if (href) {
     return (
-      <Link href={href} className="inline-flex items-center gap-2">
-        <LogoMark size={size} />
+      <Link href={href} className={rowClass}>
+        {showMark ? <LogoMark size={size} /> : null}
         {content}
       </Link>
     );
   }
 
   return (
-    <span className="inline-flex items-center gap-2">
-      <LogoMark size={size} />
+    <span className={rowClass}>
+      {showMark ? <LogoMark size={size} /> : null}
       {content}
     </span>
   );

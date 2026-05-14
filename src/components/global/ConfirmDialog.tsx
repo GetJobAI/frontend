@@ -10,24 +10,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+import { buttonVariants } from "~/components/ui/button";
 
-interface ConfirmDeleteDialogProps {
+export interface ConfirmDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   title?: string;
   description?: string;
   confirmLabel?: string;
+  /** Use `"destructive"` for irreversible actions (default). */
+  confirmVariant?: "default" | "destructive";
   onConfirm: () => void | Promise<void>;
 }
 
-export function ConfirmDeleteDialog({
+export function ConfirmDialog({
   open,
   onOpenChange,
-  title = "Delete resume?",
-  description = "This action cannot be undone. The resume will be permanently removed.",
-  confirmLabel = "Delete",
+  title = "Are you sure?",
+  description = "This action cannot be undone.",
+  confirmLabel = "Confirm",
+  confirmVariant = "destructive",
   onConfirm,
-}: ConfirmDeleteDialogProps) {
+}: ConfirmDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -37,7 +41,14 @@ export function ConfirmDeleteDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => void onConfirm()}>
+          <AlertDialogAction
+            className={
+              confirmVariant === "default"
+                ? buttonVariants({ variant: "default" })
+                : undefined
+            }
+            onClick={() => void onConfirm()}
+          >
             {confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import type { ComponentType } from "react";
 
-import { ConfirmDeleteDialog } from "~/components/global/ConfirmDeleteDialog";
+import { ConfirmDialog } from "~/components/global/ConfirmDialog";
 import { LinkedInIcon } from "~/components/global/LinkedInIcon";
 import { ResumeJsonDialog } from "~/components/global/ResumeJsonDialog";
 import { Button } from "~/components/ui/button";
@@ -249,7 +249,7 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
         </DialogContent>
       </Dialog>
 
-      <ConfirmDeleteDialog
+      <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {
           if (!open) {

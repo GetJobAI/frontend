@@ -41,7 +41,7 @@ export function DashboardNav({ collapsed = false }: { collapsed?: boolean }) {
 
   return (
     <nav aria-label="Dashboard navigation">
-      <ul className="flex flex-col gap-0.5">
+      <ul className="flex flex-col gap-1.5">
         {navItems.map((item) => {
           const isActive = item.exact
             ? pathname === item.href
@@ -55,8 +55,10 @@ export function DashboardNav({ collapsed = false }: { collapsed?: boolean }) {
                 id={item.id}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  collapsed && "justify-center px-2",
+                  "flex items-center gap-3 rounded-md text-sm font-medium transition-colors",
+                  collapsed
+                    ? "mx-auto size-10 justify-center p-0"
+                    : "h-10 px-3",
                   isActive
                     ? "bg-violet-600/15 text-violet-300"
                     : "text-neutral-500 hover:bg-white/5 hover:text-neutral-200",
