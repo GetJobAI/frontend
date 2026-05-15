@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { deleteResumeAction } from "~/server/actions/backend/resume-actions";
+import { deleteResumeAction } from "~/server/actions/resume/actions";
 import { cn } from "~/lib/utils";
 
 type ResumeItem = {

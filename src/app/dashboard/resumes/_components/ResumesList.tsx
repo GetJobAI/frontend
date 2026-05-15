@@ -1,5 +1,5 @@
 import { ResumesListClient } from "./ResumesListClient";
-import { listUserResumesFromBackend } from "~/server/actions/backend/resumes-api";
+import { listUserResumesFromBackend } from "~/server/api/resume";
 
 interface ResumesListProps {
   userId: string;

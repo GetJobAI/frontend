@@ -7,8 +7,8 @@ import {
   SUMMARY_MAX_LENGTH,
   SUMMARY_MIN_LENGTH,
   step2Schema,
-} from "~/lib/wizard-schemas";
-import { useWizardAutoSave } from "~/hooks/useWizardAutoSave";
+} from "../lib/wizard-schemas";
+import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
 import { useWizard } from "./WizardContext";
 import { SectionHeader } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";

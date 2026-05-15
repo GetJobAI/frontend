@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { wizardSessions } from "~/server/db/schema";
 import { getUserId } from "~/lib/auth";
-import { encryptStepData } from "~/lib/crypto";
+import { encryptStepData } from "~/app/dashboard/resumes/wizard/lib/crypto";
 import { isNull, and, eq, desc } from "drizzle-orm";
 
 export async function POST() {

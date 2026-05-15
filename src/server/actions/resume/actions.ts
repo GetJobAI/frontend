@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { getUserId } from "~/lib/auth";
-import { deleteResumeOnBackend } from "~/server/actions/backend/resumes-api";
+import { deleteResumeOnBackend } from "~/server/api/resume";
 
 export async function deleteResumeAction(resumeId: string) {
   try {

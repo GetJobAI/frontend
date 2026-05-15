@@ -3,17 +3,20 @@ import { db } from "~/server/db";
 import { wizardSessions } from "~/server/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { getUserId } from "~/lib/auth";
-import { decryptStepData, StepDataDecryptError } from "~/lib/crypto";
-import { assembleResumeJson } from "~/lib/assemble-resume";
+import {
+  decryptStepData,
+  StepDataDecryptError,
+} from "~/app/dashboard/resumes/wizard/lib/crypto";
+import { assembleResumeJson } from "~/app/dashboard/resumes/wizard/lib/assemble-resume";
 import {
   areRequiredStepsComplete,
   computeCompletenessScore,
-} from "~/lib/completeness";
-import { WIZARD_SESSION_CONTENT_KEY } from "~/lib/resume-constants";
+} from "~/app/dashboard/resumes/wizard/lib/completeness";
+import { WIZARD_SESSION_CONTENT_KEY } from "~/app/dashboard/resumes/wizard/lib/resume-constants";
 import {
   createResumeOnBackend,
   findResumeByWizardSessionFromBackend,
-} from "~/server/actions/backend/resumes-api";
+} from "~/server/api/resume";
 
 export async function POST(
   _req: NextRequest,

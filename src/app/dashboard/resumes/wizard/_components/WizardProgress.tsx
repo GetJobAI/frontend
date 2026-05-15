@@ -2,9 +2,9 @@
 
 import { cn } from "~/lib/utils";
 import { Check, CircleX } from "lucide-react";
-import { STEP_META, TOTAL_STEPS } from "~/lib/wizard-schemas";
+import { STEP_META, TOTAL_STEPS } from "../lib/wizard-schemas";
 import { useWizard } from "./WizardContext";
-import { getStepStatus } from "~/lib/completeness";
+import { getStepStatus } from "../lib/completeness";
 
 export function WizardProgress() {
   const { currentStep, furthestStep, goToStep, stepData } = useWizard();

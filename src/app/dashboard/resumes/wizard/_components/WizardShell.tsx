@@ -11,7 +11,7 @@ import { Step6Certifications } from "./Step6Certifications";
 import { Step7Languages } from "./Step7Languages";
 import { Step8Projects } from "./Step8Projects";
 import { Step9Review } from "./Step9Review";
-import { STEP_META } from "~/lib/wizard-schemas";
+import { STEP_META } from "../lib/wizard-schemas";
 import { WandSparkles } from "lucide-react";
 
 function WizardBody() {

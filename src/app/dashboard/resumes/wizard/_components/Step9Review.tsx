@@ -26,14 +26,14 @@ import {
   areRequiredStepsComplete,
   computeCompletenessScore,
   getStepStatus,
-} from "~/lib/completeness";
+} from "../lib/completeness";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { apiClient } from "~/lib/api-client";
-import { wizardKeys } from "~/lib/wizard-query";
+import { apiNext } from "~/lib/api-next";
+import { wizardKeys } from "../lib/wizard-query";
 
 interface SectionSummary {
   step: number;
@@ -91,7 +91,7 @@ export function Step9Review() {
   const status8 = getStepStatus(8, stepData);
 
   const finalizeMutation = useMutation({
-    mutationFn: (id: string) => apiClient.post(`/wizard/${id}/finalize`),
+    mutationFn: (id: string) => apiNext.post(`/wizard/${id}/finalize`),
     onSuccess: (_, id) => {
       queryClient.removeQueries({ queryKey: wizardKeys.session(id) });
     },

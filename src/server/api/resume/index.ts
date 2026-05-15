@@ -1,23 +1,6 @@
-import { WIZARD_SESSION_CONTENT_KEY } from "~/lib/resume-constants";
-
-import { createBackendAxios } from "./backend-axios";
-
-export type BackendResumeRow = {
-  id: string;
-  user_id: string;
-  content: unknown;
-  created_at: string;
-  updated_at: string;
-};
-
-export type ResumeListItem = {
-  id: string;
-  content: unknown;
-  inputMethod: string | null;
-  parseStatus: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { WIZARD_SESSION_CONTENT_KEY } from "~/app/dashboard/resumes/wizard/lib/resume-constants";
+import { createBackendAxios } from "~/lib/api-backend";
+import type { BackendResumeRow, ResumeListItem } from "./types";
 
 function mapRowToListItem(row: BackendResumeRow): ResumeListItem {
   return {
@@ -119,3 +102,5 @@ export async function deleteResumeOnBackend(
   });
   return status === 204 || status === 200;
 }
+
+export type { BackendResumeRow, ResumeListItem } from "./types";

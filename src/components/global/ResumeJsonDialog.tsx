@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
-import { WIZARD_SESSION_CONTENT_KEY } from "~/lib/resume-constants";
+import { WIZARD_SESSION_CONTENT_KEY } from "~/app/dashboard/resumes/wizard/lib/resume-constants";
 
 interface ResumeJsonDialogProps {
   open: boolean;

@@ -3,8 +3,8 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
-import { step7Schema } from "~/lib/wizard-schemas";
-import { useWizardAutoSave } from "~/hooks/useWizardAutoSave";
+import { step7Schema } from "../lib/wizard-schemas";
+import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
 import { useWizard } from "./WizardContext";
 import { SectionHeader, AddButton, RemoveButton } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";

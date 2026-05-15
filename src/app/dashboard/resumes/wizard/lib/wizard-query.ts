@@ -1,4 +1,4 @@
-import { apiClient } from "~/lib/api-client";
+import { apiNext } from "~/lib/api-next";
 
 export const wizardKeys = {
   all: ["wizard"] as const,
@@ -16,7 +16,7 @@ export type WizardSession = {
 export async function fetchWizardSession(
   sessionId: string,
 ): Promise<WizardSession> {
-  const { data } = await apiClient.get<WizardSession>(`/wizard/${sessionId}`);
+  const { data } = await apiNext.get<WizardSession>(`/wizard/${sessionId}`);
   return data;
 }
 
@@ -24,7 +24,7 @@ export async function createWizardSession(): Promise<{
   sessionId: string;
   currentStep: number;
 }> {
-  const { data } = await apiClient.post<{
+  const { data } = await apiNext.post<{
     sessionId: string;
     currentStep: number;
   }>("/wizard");

@@ -2,14 +2,14 @@ import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { wizardSessions } from "~/server/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
-import { stepSchemas } from "~/lib/wizard-schemas";
+import { stepSchemas } from "~/app/dashboard/resumes/wizard/lib/wizard-schemas";
 import { getUserId } from "~/lib/auth";
 import {
   encryptStepData,
   decryptStepData,
   StepDataDecryptError,
-} from "~/lib/crypto";
-import { checkRateLimit } from "~/lib/rate-limit";
+} from "~/app/dashboard/resumes/wizard/lib/crypto";
+import { checkRateLimit } from "~/app/dashboard/resumes/wizard/lib/rate-limit";
 
 export async function PATCH(
   req: NextRequest,

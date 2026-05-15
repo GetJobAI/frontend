@@ -2,7 +2,10 @@ import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { wizardSessions } from "~/server/db/schema";
 import { getUserId } from "~/lib/auth";
-import { decryptStepData, StepDataDecryptError } from "~/lib/crypto";
+import {
+  decryptStepData,
+  StepDataDecryptError,
+} from "~/app/dashboard/resumes/wizard/lib/crypto";
 import { eq, and, isNull } from "drizzle-orm";
 
 export async function GET(

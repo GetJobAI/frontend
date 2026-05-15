@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import type { UseFormWatch, FieldValues } from "react-hook-form";
-import { apiClient } from "~/lib/api-client";
-import { wizardKeys } from "~/lib/wizard-query";
+import { apiNext } from "~/lib/api-next";
+import { wizardKeys } from "../lib/wizard-query";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
 
@@ -26,7 +26,7 @@ export function useWizardAutoSave<T extends FieldValues>(
 
       for (let attempt = 0; attempt < 3; attempt += 1) {
         try {
-          const res = await apiClient.patch(
+          const res = await apiNext.patch(
             `/wizard/${sessionId}/steps/${stepNum}`,
             data,
             immediate ? { timeout: 2000 } : undefined,

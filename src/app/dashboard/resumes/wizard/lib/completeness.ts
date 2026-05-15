@@ -1,4 +1,4 @@
-import { SUMMARY_MIN_LENGTH } from "~/lib/wizard-schemas";
+import { SUMMARY_MIN_LENGTH } from "./wizard-schemas";
 
 const WEIGHTS: Record<number, number> = {
   1: 15, // Contact + style

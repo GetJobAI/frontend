@@ -4,7 +4,6 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().startsWith("postgres"),
-    /** PostgREST origin (e.g. http://localhost:8080). On Vercel use your public API URL, not localhost. */
     BACKEND_API_BASE_URL: z.string().url(),
     CLERK_SECRET_KEY: z.string(),
     WIZARD_ENCRYPTION_KEY: z.string(),

@@ -11,12 +11,12 @@ import {
 } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
-import { apiClient } from "~/lib/api-client";
+import { apiNext } from "~/lib/api-next";
 import {
   createWizardSession,
   fetchWizardSession,
   wizardKeys,
-} from "~/lib/wizard-query";
+} from "../lib/wizard-query";
 
 function getErrorMessage(e: unknown): string {
   if (isAxiosError(e)) {
@@ -137,7 +137,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     }: {
       id: string;
       payload: Record<string, unknown>;
-    }) => apiClient.patch(`/wizard/${id}/steps/8`, payload),
+    }) => apiNext.patch(`/wizard/${id}/steps/8`, payload),
     onSuccess: async (_, { id }) => {
       await queryClient.invalidateQueries({
         queryKey: wizardKeys.session(id),
