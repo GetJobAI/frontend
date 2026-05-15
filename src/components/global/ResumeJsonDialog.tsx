@@ -11,11 +11,25 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
+import { WIZARD_SESSION_CONTENT_KEY } from "~/lib/resume-constants";
 
 interface ResumeJsonDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   resumeContent: unknown;
+}
+
+const INTERNAL_RESUME_KEYS = new Set([WIZARD_SESSION_CONTENT_KEY]);
+
+function stripInternalResumeFields(value: unknown): unknown {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).filter(
+      ([k]) => !INTERNAL_RESUME_KEYS.has(k),
+    ),
+  );
 }
 
 export function ResumeJsonDialog({
@@ -24,7 +38,8 @@ export function ResumeJsonDialog({
   resumeContent,
 }: ResumeJsonDialogProps) {
   const prettyJson = useMemo(
-    () => JSON.stringify(resumeContent ?? {}, null, 2),
+    () =>
+      JSON.stringify(stripInternalResumeFields(resumeContent ?? {}), null, 2),
     [resumeContent],
   );
 

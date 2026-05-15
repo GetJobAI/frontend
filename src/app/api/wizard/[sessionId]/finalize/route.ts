@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
-import { wizardSessions, resumes } from "~/server/db/schema";
+import { wizardSessions } from "~/server/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { getUserId } from "~/lib/auth";
 import { decryptStepData, StepDataDecryptError } from "~/lib/crypto";
@@ -9,6 +9,11 @@ import {
   areRequiredStepsComplete,
   computeCompletenessScore,
 } from "~/lib/completeness";
+import { WIZARD_SESSION_CONTENT_KEY } from "~/lib/resume-constants";
+import {
+  createResumeOnBackend,
+  findResumeByWizardSessionFromBackend,
+} from "~/server/actions/backend/resumes-api";
 
 export async function POST(
   _req: NextRequest,
@@ -18,94 +23,78 @@ export async function POST(
     const userId = await getUserId();
     const { sessionId } = await params;
 
-    const existingResume = await db.query.resumes.findFirst({
-      where: and(
-        eq(resumes.userId, userId),
-        eq(resumes.wizardSessionId, sessionId),
-      ),
-    });
-    if (existingResume) {
+    const existingRemote = await findResumeByWizardSessionFromBackend(
+      userId,
+      sessionId,
+    );
+    if (existingRemote) {
       return NextResponse.json({
-        resumeId: existingResume.id,
+        resumeId: existingRemote.id,
         idempotent: true,
       });
     }
 
-    const result = await db.transaction(async (tx) => {
-      const session = await tx.query.wizardSessions.findFirst({
-        where: and(
-          eq(wizardSessions.id, sessionId),
-          eq(wizardSessions.userId, userId),
-          isNull(wizardSessions.completedAt),
-        ),
-      });
-      if (!session) {
-        return null;
-      }
-
-      const stepData = decryptStepData(session.stepData);
-      const score = computeCompletenessScore(stepData);
-      const requiredStepsComplete = areRequiredStepsComplete(stepData);
-
-      if (!requiredStepsComplete) {
-        return {
-          error: "Required wizard sections are incomplete",
-          score,
-        } as const;
-      }
-
-      if (score < 60) {
-        return { error: "Completeness score below 60%", score } as const;
-      }
-
-      const resumeJson = assembleResumeJson(stepData);
-      const [resume] = await tx
-        .insert(resumes)
-        .values({
-          userId,
-          content: resumeJson,
-          inputMethod: "wizard",
-          wizardSessionId: session.id,
-          parseStatus: "completed",
-        })
-        .returning({ id: resumes.id });
-
-      await tx
-        .delete(wizardSessions)
-        .where(
-          and(
-            eq(wizardSessions.id, session.id),
-            eq(wizardSessions.userId, userId),
-          ),
-        );
-
-      return { resumeId: resume!.id, score } as const;
+    const session = await db.query.wizardSessions.findFirst({
+      where: and(
+        eq(wizardSessions.id, sessionId),
+        eq(wizardSessions.userId, userId),
+        isNull(wizardSessions.completedAt),
+      ),
     });
 
-    if (!result) {
-      const resumeAfterRace = await db.query.resumes.findFirst({
-        where: and(
-          eq(resumes.userId, userId),
-          eq(resumes.wizardSessionId, sessionId),
-        ),
-      });
-      if (resumeAfterRace) {
+    if (!session) {
+      const afterRace = await findResumeByWizardSessionFromBackend(
+        userId,
+        sessionId,
+      );
+      if (afterRace) {
         return NextResponse.json({
-          resumeId: resumeAfterRace.id,
+          resumeId: afterRace.id,
           idempotent: true,
         });
       }
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    if ("error" in result) {
+    const stepData = decryptStepData(session.stepData);
+
+    const score = computeCompletenessScore(stepData);
+    const requiredStepsComplete = areRequiredStepsComplete(stepData);
+
+    if (!requiredStepsComplete) {
       return NextResponse.json(
-        { error: result.error, score: result.score },
+        { error: "Required wizard sections are incomplete", score },
         { status: 422 },
       );
     }
 
-    return NextResponse.json(result);
+    if (score < 60) {
+      return NextResponse.json(
+        { error: "Completeness score below 60%", score },
+        { status: 422 },
+      );
+    }
+
+    const resumeJson = {
+      ...assembleResumeJson(stepData),
+      [WIZARD_SESSION_CONTENT_KEY]: sessionId,
+    };
+
+    const { id: resumeId } = await createResumeOnBackend({
+      userId,
+      content: resumeJson,
+    });
+
+    await db
+      .delete(wizardSessions)
+      .where(
+        and(
+          eq(wizardSessions.id, session.id),
+          eq(wizardSessions.userId, userId),
+        ),
+      );
+
+    return NextResponse.json({ resumeId, score });
   } catch (e) {
     if ((e as Error).message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -38,18 +38,3 @@ export const wizardSessions = pgTable(
       .where(isNull(table.completedAt)),
   ],
 );
-
-export const resumes = pgTable("resumes", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id").notNull(),
-  content: jsonb("content"), // canonical field per OpenAPI
-  inputMethod: text("input_method"), // 'wizard' for this path
-  wizardSessionId: uuid("wizard_session_id"),
-  parseStatus: text("parse_status").default("completed"),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});

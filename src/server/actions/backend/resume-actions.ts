@@ -1,22 +1,17 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { getUserId } from "~/lib/auth";
-import { db } from "~/server/db";
-import { resumes } from "~/server/db/schema";
+import { deleteResumeOnBackend } from "~/server/actions/backend/resumes-api";
 
 export async function deleteResumeAction(resumeId: string) {
   try {
     const userId = await getUserId();
 
-    const deleted = await db
-      .delete(resumes)
-      .where(and(eq(resumes.id, resumeId), eq(resumes.userId, userId)))
-      .returning({ id: resumes.id });
+    const deleted = await deleteResumeOnBackend(userId, resumeId);
 
-    if (deleted.length === 0) {
+    if (!deleted) {
       return { ok: false as const, error: "Resume not found" };
     }
 
