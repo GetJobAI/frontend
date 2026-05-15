@@ -1,11 +1,11 @@
 import { type Metadata } from "next";
-import { desc, eq } from "drizzle-orm";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
-import { ResumesListClient } from "./_components/ResumesListClient";
+import { ResumesCreatePaths } from "./_components/ResumesCreatePaths";
+import { ResumesList } from "./_components/ResumesList";
+import { ResumesListSkeleton } from "./_components/ResumesListSkeleton";
 import { getUserId } from "~/lib/auth";
-import { db } from "~/server/db";
-import { resumes } from "~/server/db/schema";
 
 export const metadata: Metadata = { title: "Resumes" };
 
@@ -15,18 +15,20 @@ export default async function ResumesPage() {
     redirect("/sign-in");
   }
 
-  const userResumes = await db
-    .select({
-      id: resumes.id,
-      content: resumes.content,
-      inputMethod: resumes.inputMethod,
-      parseStatus: resumes.parseStatus,
-      createdAt: resumes.createdAt,
-      updatedAt: resumes.updatedAt,
-    })
-    .from(resumes)
-    .where(eq(resumes.userId, userId))
-    .orderBy(desc(resumes.updatedAt));
+  return (
+    <div className="flex h-full flex-col gap-6">
+      <div>
+        <h1 className="text-xl font-semibold text-white">Resumes</h1>
+        <p className="mt-1 text-sm text-neutral-500">
+          Create, inspect, and manage all of your resumes.
+        </p>
+      </div>
 
-  return <ResumesListClient resumes={userResumes} />;
+      <ResumesCreatePaths />
+
+      <Suspense fallback={<ResumesListSkeleton />}>
+        <ResumesList userId={userId} />
+      </Suspense>
+    </div>
+  );
 }

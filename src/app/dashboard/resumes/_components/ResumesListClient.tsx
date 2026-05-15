@@ -1,21 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import {
-  ArrowRight,
-  FileJson,
-  Pencil,
-  Sparkles,
-  Trash2,
-  Upload,
-  WandSparkles,
-} from "lucide-react";
-import type { ComponentType } from "react";
+import { FileJson, Pencil, Sparkles, Trash2 } from "lucide-react";
 
 import { ConfirmDialog } from "~/components/global/ConfirmDialog";
-import { LinkedInIcon } from "~/components/global/LinkedInIcon";
 import { ResumeJsonDialog } from "~/components/global/ResumeJsonDialog";
 import { Button } from "~/components/ui/button";
 import {
@@ -40,34 +29,6 @@ type ResumeItem = {
 interface ResumesListClientProps {
   resumes: ResumeItem[];
 }
-
-const createPaths: Array<{
-  href: string;
-  title: string;
-  description: string;
-  icon: ComponentType<{ className?: string }>;
-}> = [
-  {
-    href: "/dashboard/resumes/upload",
-    title: "Upload Resume",
-    description: "Upload PDF or DOCX and parse automatically",
-    icon: Upload,
-  },
-  {
-    href: "/dashboard/resumes/wizard",
-    title: "Wizard Builder",
-    description: "Build from scratch in guided 9 steps",
-    icon: WandSparkles,
-  },
-  {
-    href: "/dashboard/resumes/linkedin",
-    title: "LinkedIn Import",
-    description: "Import your LinkedIn ZIP export",
-    icon: ({ className }) => (
-      <LinkedInIcon className={className} strokeWidth={1.7} />
-    ),
-  },
-];
 
 export function ResumesListClient({ resumes }: ResumesListClientProps) {
   const router = useRouter();
@@ -98,38 +59,7 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
   };
 
   return (
-    <div className="flex h-full flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-white">Resumes</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Create, inspect, and manage all of your resumes.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        {createPaths.map((path) => {
-          const Icon = path.icon;
-          return (
-            <Link
-              key={path.href}
-              href={path.href}
-              className="group card-surface card-surface-hover flex min-h-[132px] flex-col justify-between p-4"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="rounded-lg bg-violet-500/15 p-2 text-violet-400">
-                  <Icon className="size-4" />
-                </span>
-                <ArrowRight className="size-4 text-neutral-600 transition-transform group-hover:translate-x-1 group-hover:text-violet-400" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-semibold text-white">{path.title}</p>
-                <p className="text-xs text-neutral-500">{path.description}</p>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
+    <>
       <div className="card-surface flex flex-1 flex-col overflow-hidden">
         <div className="border-b border-white/6 px-4 py-3 text-sm font-medium text-neutral-300">
           Existing resumes ({rows.length})
@@ -272,6 +202,6 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
           {deleteError}
         </div>
       ) : null}
-    </div>
+    </>
   );
 }
