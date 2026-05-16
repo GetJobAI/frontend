@@ -170,8 +170,16 @@
 
   .gradient-violet-subtle {
     background: radial-gradient(
-      ellipse 80% 50% at 50% -10%,
+      ellipse 100% 60% at 50% -10%,
       oklch(0.65 0.22 293 / 18%) 0%,
+      transparent 70%
+    );
+  }
+
+  .gradient-red-subtle {
+    background: radial-gradient(
+      ellipse 100% 60% at 50% -10%,
+      oklch(0.63 0.22 27 / 18%) 0%,
       transparent 70%
     );
   }

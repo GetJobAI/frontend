@@ -6,7 +6,7 @@ export default function NotFound() {
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#0a0a0a] px-6 text-center">
       <div
         aria-hidden="true"
-        className="gradient-violet-subtle pointer-events-none absolute inset-x-0 top-0 h-[500px] opacity-60"
+        className="gradient-violet-subtle pointer-events-none absolute inset-x-0 top-0 h-[700px] opacity-60"
       />
       <div className="relative z-10 flex flex-col items-center gap-6">
         <span className="mb-8 text-[120px] leading-none font-bold tracking-tighter text-white/10 select-none">

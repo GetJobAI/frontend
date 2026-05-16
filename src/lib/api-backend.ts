@@ -20,9 +20,34 @@ export function createBackendAxios() {
     const token = await getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn("[backend-api] Missing Clerk token", {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+      });
     }
     return config;
   });
+
+  instance.interceptors.response.use(
+    (response) => response,
+    (error: unknown) => {
+      if (axios.isAxiosError(error)) {
+        const responseData: unknown = error.response?.data as unknown;
+        console.error("[backend-api] Request failed", {
+          method: error.config?.method?.toUpperCase(),
+          url: error.config?.url,
+          status: error.response?.status,
+          data: responseData,
+        });
+      }
+      return Promise.reject(
+        error instanceof Error
+          ? error
+          : new Error("Backend API request failed"),
+      );
+    },
+  );
 
   return instance;
 }

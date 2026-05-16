@@ -60,6 +60,13 @@ export default function HomePage() {
         <Logo />
         <nav className="flex items-center gap-2">
           <Link
+            id="nav-sign-in"
+            href="/sign-in?redirect_url=%2Fdashboard"
+            className="rounded-md px-3 py-1.5 text-sm text-neutral-400 transition-colors hover:text-white"
+          >
+            Sign in
+          </Link>
+          <Link
             id="nav-sign-up"
             href="/sign-up?redirect_url=%2Fdashboard"
             className="rounded-md bg-violet-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-violet-500"
