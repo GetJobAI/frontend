@@ -34,12 +34,16 @@ export function Step2Summary() {
     mode: "onChange",
   });
 
-  useWizardAutoSave(sessionId, 2, form.watch);
+  const { saveNow } = useWizardAutoSave(sessionId, 2, form.watch);
 
   const summaryText = form.watch("summary") ?? "";
   const charCount = summaryText.length;
 
-  const onSubmit = form.handleSubmit(() => nextStep());
+  const onSubmit = form.handleSubmit(async (data) => {
+    if (await saveNow(data, { immediate: true, advance: true })) {
+      nextStep();
+    }
+  });
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">

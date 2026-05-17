@@ -50,9 +50,13 @@ export function Step1PersonalInfo() {
     mode: "onChange",
   });
 
-  useWizardAutoSave(sessionId, 1, form.watch);
+  const { saveNow } = useWizardAutoSave(sessionId, 1, form.watch);
 
-  const onSubmit = form.handleSubmit(() => nextStep());
+  const onSubmit = form.handleSubmit(async (data) => {
+    if (await saveNow(data, { immediate: true, advance: true })) {
+      nextStep();
+    }
+  });
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
@@ -169,7 +173,7 @@ export function Step1PersonalInfo() {
         </Field>
 
         <Field className="sm:col-span-2">
-          <FieldLabel htmlFor="headings.summary">
+          <FieldLabel htmlFor="headings.summary" className="mt-4">
             Optional custom section headings
           </FieldLabel>
           <p className="text-[11px] text-neutral-600">

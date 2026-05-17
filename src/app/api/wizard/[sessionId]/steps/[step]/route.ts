@@ -27,6 +27,7 @@ export async function PATCH(
 
     const { sessionId, step } = await params;
     const stepNum = Number(step) as keyof typeof stepSchemas;
+    const shouldAdvance = req.nextUrl.searchParams.get("advance") === "1";
     const body = (await req.json()) as unknown;
 
     const schema = stepSchemas[stepNum];
@@ -60,7 +61,9 @@ export async function PATCH(
       .update(wizardSessions)
       .set({
         stepData: encryptStepData(updatedData),
-        currentStep: Math.max(session.currentStep, Math.min(stepNum + 1, 9)),
+        currentStep: shouldAdvance
+          ? Math.max(session.currentStep, Math.min(stepNum + 1, 9))
+          : session.currentStep,
         updatedAt: new Date(),
       })
       .where(

@@ -5,7 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useState } from "react";
 import { UserButton, useClerk, useUser } from "@clerk/nextjs";
 import { LogOut, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
-import { DashboardNav } from "~/app/dashboard/_components/dashboard-nav";
+import { DashboardNav } from "~/app/dashboard/_components/DashboardNav";
 import { ConfirmDialog } from "~/components/global/ConfirmDialog";
 import { Logo } from "~/components/global/Logo";
 import { Button } from "~/components/ui/button";

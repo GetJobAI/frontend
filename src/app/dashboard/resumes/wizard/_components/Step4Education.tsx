@@ -32,7 +32,7 @@ export function Step4Education() {
     name: "education",
   });
 
-  useWizardAutoSave(sessionId, 4, form.watch);
+  const { saveNow } = useWizardAutoSave(sessionId, 4, form.watch);
 
   const addEducation = () =>
     append({
@@ -44,7 +44,11 @@ export function Step4Education() {
       hide: false,
     });
 
-  const onSubmit = form.handleSubmit(() => nextStep());
+  const onSubmit = form.handleSubmit(async (data) => {
+    if (await saveNow(data, { immediate: true, advance: true })) {
+      nextStep();
+    }
+  });
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">

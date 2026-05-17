@@ -29,11 +29,15 @@ export function Step5Skills() {
     name: "skills",
   });
 
-  useWizardAutoSave(sessionId, 5, form.watch);
+  const { saveNow } = useWizardAutoSave(sessionId, 5, form.watch);
 
   const addSkillGroup = () => append({ category: "", items: [] });
 
-  const onSubmit = form.handleSubmit(() => nextStep());
+  const onSubmit = form.handleSubmit(async (data) => {
+    if (await saveNow(data, { immediate: true, advance: true })) {
+      nextStep();
+    }
+  });
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">

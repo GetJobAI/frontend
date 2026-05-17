@@ -56,29 +56,28 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [furthestStep, setFurthestStep] = useState(1);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isBootstrapping, setIsBootstrapping] = useState(false);
 
-  const bootstrap = useMutation({
-    mutationFn: createWizardSession,
-    onSuccess: () => setLoadError(null),
-    onError: (e) => {
+  const bootstrapSession = useCallback(async () => {
+    setIsBootstrapping(true);
+    try {
+      const created = await createWizardSession();
+      setLoadError(null);
+      setSessionId(created.sessionId);
+    } catch (e) {
       hydratedSessionRef.current = null;
       setSessionId(null);
       setLoadError(getErrorMessage(e));
-    },
-  });
+    } finally {
+      setIsBootstrapping(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (didBootstrapRef.current) return;
     didBootstrapRef.current = true;
-    void (async () => {
-      try {
-        const created = await bootstrap.mutateAsync();
-        setSessionId(created.sessionId);
-      } catch {
-        // error handled in onError
-      }
-    })();
-  }, [bootstrap]);
+    void bootstrapSession();
+  }, [bootstrapSession]);
 
   const sessionQuery = useQuery({
     queryKey: wizardKeys.session(sessionId ?? ""),
@@ -105,14 +104,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       setSessionId(null);
       setCurrentStep(1);
       setFurthestStep(1);
-      void (async () => {
-        try {
-          const created = await bootstrap.mutateAsync();
-          setSessionId(created.sessionId);
-        } catch {
-          // onError handles
-        }
-      })();
+      void bootstrapSession();
       return;
     }
     setLoadError(getErrorMessage(err));
@@ -121,7 +113,7 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     sessionQuery.error,
     sessionId,
     queryClient,
-    bootstrap,
+    bootstrapSession,
   ]);
 
   useEffect(() => {
@@ -161,17 +153,12 @@ export function WizardProvider({ children }: { children: ReactNode }) {
         setSessionId(null);
         setCurrentStep(1);
         setFurthestStep(1);
-        try {
-          const created = await bootstrap.mutateAsync();
-          setSessionId(created.sessionId);
-        } catch {
-          // onError handles
-        }
+        await bootstrapSession();
         return;
       }
       setLoadError(getErrorMessage(e));
     }
-  }, [sessionId, queryClient, bootstrap]);
+  }, [sessionId, queryClient, bootstrapSession]);
 
   const goToStep = useCallback(
     (step: number) => {
@@ -211,20 +198,12 @@ export function WizardProvider({ children }: { children: ReactNode }) {
       hydratedSessionRef.current = null;
       setSessionId(null);
     }
-    bootstrap.reset();
-    void (async () => {
-      try {
-        const created = await bootstrap.mutateAsync();
-        setSessionId(created.sessionId);
-      } catch {
-        // onError handles
-      }
-    })();
-  }, [sessionId, queryClient, bootstrap]);
+    void bootstrapSession();
+  }, [sessionId, queryClient, bootstrapSession]);
 
   const stepData = sessionQuery.data?.stepData ?? {};
   const isLoading =
-    bootstrap.isPending ||
+    isBootstrapping ||
     (Boolean(sessionId) && sessionQuery.isPending && !sessionQuery.data);
 
   return (

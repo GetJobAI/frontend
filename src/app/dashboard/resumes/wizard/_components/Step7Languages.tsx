@@ -48,11 +48,15 @@ export function Step7Languages() {
     name: "languages",
   });
 
-  useWizardAutoSave(sessionId, 7, form.watch);
+  const { saveNow } = useWizardAutoSave(sessionId, 7, form.watch);
 
   const addLanguage = () => append({ name: "", level: "B2" });
 
-  const onSubmit = form.handleSubmit(() => nextStep());
+  const onSubmit = form.handleSubmit(async (data) => {
+    if (await saveNow(data, { immediate: true, advance: true })) {
+      nextStep();
+    }
+  });
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">

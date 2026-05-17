@@ -31,7 +31,7 @@ export function Step8Projects() {
     name: "projects",
   });
 
-  useWizardAutoSave(sessionId, 8, form.watch);
+  const { saveNow } = useWizardAutoSave(sessionId, 8, form.watch);
 
   const addProject = () =>
     append({
@@ -40,7 +40,11 @@ export function Step8Projects() {
       url: "",
     });
 
-  const onSubmit = form.handleSubmit(() => nextStep());
+  const onSubmit = form.handleSubmit(async (data) => {
+    if (await saveNow(data, { immediate: true, advance: true })) {
+      nextStep();
+    }
+  });
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">

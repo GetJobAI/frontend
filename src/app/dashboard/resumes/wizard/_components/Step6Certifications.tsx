@@ -30,7 +30,7 @@ export function Step6Certifications() {
     name: "certifications",
   });
 
-  useWizardAutoSave(sessionId, 6, form.watch);
+  const { saveNow } = useWizardAutoSave(sessionId, 6, form.watch);
 
   const addCert = () =>
     append({
@@ -39,7 +39,11 @@ export function Step6Certifications() {
       date: "",
     });
 
-  const onSubmit = form.handleSubmit(() => nextStep());
+  const onSubmit = form.handleSubmit(async (data) => {
+    if (await saveNow(data, { immediate: true, advance: true })) {
+      nextStep();
+    }
+  });
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">

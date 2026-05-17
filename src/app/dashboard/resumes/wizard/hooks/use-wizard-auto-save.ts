@@ -8,6 +8,10 @@ import { apiNext } from "~/lib/api-next";
 import { wizardKeys } from "../lib/wizard-query";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
+type SaveOptions = {
+  immediate?: boolean;
+  advance?: boolean;
+};
 
 export function useWizardAutoSave<T extends FieldValues>(
   sessionId: string | null,
@@ -20,16 +24,17 @@ export function useWizardAutoSave<T extends FieldValues>(
   const saveStateRef = useRef<SaveState>("idle");
 
   const saveNow = useCallback(
-    async (data: T, immediate = false): Promise<boolean> => {
+    async (data: T, options: SaveOptions = {}): Promise<boolean> => {
       if (!sessionId) return false;
       saveStateRef.current = "saving";
 
       for (let attempt = 0; attempt < 3; attempt += 1) {
         try {
+          const params = options.advance ? "?advance=1" : "";
           const res = await apiNext.patch(
-            `/wizard/${sessionId}/steps/${stepNum}`,
+            `/wizard/${sessionId}/steps/${stepNum}${params}`,
             data,
-            immediate ? { timeout: 2000 } : undefined,
+            options.immediate ? { timeout: 2000 } : undefined,
           );
 
           if (res.status >= 200 && res.status < 300) {
@@ -80,10 +85,10 @@ export function useWizardAutoSave<T extends FieldValues>(
       subscription.unsubscribe();
       clearTimeout(timerRef.current);
       if (lastDataRef.current) {
-        void saveNow(lastDataRef.current, true);
+        void saveNow(lastDataRef.current, { immediate: true });
       }
     };
   }, [saveNow, sessionId, watch]);
 
-  return { saveState: saveStateRef.current };
+  return { saveState: saveStateRef.current, saveNow };
 }
