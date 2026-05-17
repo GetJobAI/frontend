@@ -4,6 +4,8 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/ui/themes";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AppQueryProvider } from "~/components/providers/AppQueryProvider";
 
 export const metadata: Metadata = {
@@ -33,6 +35,8 @@ export default function RootLayout({
       <html lang="en" className={`${geist.variable} dark`}>
         <body>
           <AppQueryProvider>{children}</AppQueryProvider>
+          <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
