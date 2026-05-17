@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { isAxiosError } from "axios";
 import { useWizard } from "./WizardContext";
 import { WizardNavButtons } from "./WizardNavButtons";
 import { SectionHeader } from "./WizardField";
@@ -32,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { apiNext } from "~/lib/api-next";
+import { finalizeWizardAction } from "~/server/actions/wizard/actions";
 import { wizardKeys } from "../lib/wizard-query";
 
 interface SectionSummary {
@@ -91,8 +90,9 @@ export function Step9Review() {
   const status8 = getStepStatus(8, stepData);
 
   const finalizeMutation = useMutation({
-    mutationFn: (id: string) => apiNext.post(`/wizard/${id}/finalize`),
-    onSuccess: (_, id) => {
+    mutationFn: (id: string) => finalizeWizardAction(id),
+    onSuccess: (result, id) => {
+      if (!result.ok) return;
       queryClient.removeQueries({ queryKey: wizardKeys.session(id) });
     },
   });
@@ -197,17 +197,14 @@ export function Step9Review() {
 
     try {
       await refreshSession();
-      const data = (await finalizeMutation.mutateAsync(sessionId)).data as {
-        resumeId: string;
-      };
-      router.push(`/dashboard/resumes`);
-      console.log("Resume created:", data.resumeId);
-    } catch (e) {
-      if (isAxiosError<{ error?: string }>(e)) {
-        setError(e.response?.data?.error ?? "Finalization failed");
-      } else {
-        setError((e as Error).message);
+      const result = await finalizeMutation.mutateAsync(sessionId);
+      if (!result.ok) {
+        setError(result.error);
+        return;
       }
+      router.push(`/dashboard/resumes`);
+    } catch (e) {
+      setError((e as Error).message);
     } finally {
       setIsSubmitting(false);
     }

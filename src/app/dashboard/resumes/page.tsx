@@ -27,7 +27,7 @@ export default async function ResumesPage() {
       <ResumesCreatePaths />
 
       <Suspense fallback={<ResumesListSkeleton />}>
-        <ResumesList userId={userId} />
+        <ResumesList />
       </Suspense>
     </div>
   );

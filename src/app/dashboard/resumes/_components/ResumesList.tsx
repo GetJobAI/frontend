@@ -1,12 +1,8 @@
 import { ResumesListClient } from "./ResumesListClient";
-import { listUserResumesFromBackend } from "~/server/api/resume";
+import { listResumesAction } from "~/server/actions/resume/actions";
 
-interface ResumesListProps {
-  userId: string;
-}
-
-export async function ResumesList({ userId }: ResumesListProps) {
-  const userResumes = await listUserResumesFromBackend(userId);
+export async function ResumesList() {
+  const userResumes = await listResumesAction();
 
   return <ResumesListClient resumes={userResumes} />;
 }
