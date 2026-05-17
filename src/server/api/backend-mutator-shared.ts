@@ -18,7 +18,11 @@ function getBackendAxios(options: BackendMutatorOptions): AxiosInstance {
     return cached;
   }
 
-  const root = env.BACKEND_API_BASE_URL.replace(/\/$/, "");
+  const backendRoot = env.BACKEND_API_BASE_URL;
+  if (typeof backendRoot !== "string" || backendRoot.trim().length === 0) {
+    throw new Error("BACKEND_API_BASE_URL is not configured");
+  }
+  const root = backendRoot.replace(/\/$/, "");
   const baseURL = `${root}${options.basePath}`;
   const instance = axios.create({
     baseURL,
@@ -67,12 +71,11 @@ function getBackendAxios(options: BackendMutatorOptions): AxiosInstance {
 }
 
 export function createBackendMutator(options: BackendMutatorOptions) {
-  const instance = getBackendAxios(options);
-
   return async function backendMutator<T>(
     config: AxiosRequestConfig,
     extraOptions?: AxiosRequestConfig,
   ): Promise<T> {
+    const instance = getBackendAxios(options);
     const response = await instance({
       ...config,
       ...extraOptions,

@@ -22,15 +22,23 @@ function mapRowToListItem(row: Resumes): ResumeListItem {
 }
 
 export async function listResumesAction(): Promise<ResumeListItem[]> {
-  const userId = await getUserId();
-  const rows = await getResumes({
-    user_id: `eq.${userId}`,
-    order: "updated_at.desc",
-  });
-  if (!Array.isArray(rows)) {
+  try {
+    const userId = await getUserId();
+    const rows = await getResumes({
+      user_id: `eq.${userId}`,
+      order: "updated_at.desc",
+    });
+    if (!Array.isArray(rows)) {
+      return [];
+    }
+    return rows.map(mapRowToListItem);
+  } catch (e) {
+    if ((e as Error).message === "Unauthorized") {
+      return [];
+    }
+    console.error("[listResumesAction]", e);
     return [];
   }
-  return rows.map(mapRowToListItem);
 }
 
 export async function deleteResumeAction(resumeId: string) {
