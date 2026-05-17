@@ -7,7 +7,7 @@ Welcome to the **GetJob AI** API documentation.
 
  * OpenAPI spec version: 14.11
  */
-import { backendMutator } from "../../backend-mutator";
+import { backendMutator } from "../../backend-core-mutator";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 

@@ -15,7 +15,7 @@ import type {
   Resumes,
 } from "../schemas";
 
-import { backendMutator } from "../../backend-mutator";
+import { backendMutator } from "../../backend-core-mutator";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
