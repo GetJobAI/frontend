@@ -202,7 +202,7 @@ export function Step9Review() {
         setError(result.error);
         return;
       }
-      router.push(`/dashboard/resumes`);
+      router.push(`/dashboard/resumes/${result.resumeId}/choose-template`);
     } catch (e) {
       setError((e as Error).message);
     } finally {

@@ -32,12 +32,10 @@ export function assembleResumeJson(stepData: Record<string, unknown>) {
   const s7 = asRecord(stepData[7]);
   const s8 = asRecord(stepData[8]);
 
-  const headings = cleanupObject(asRecord(s1.headings));
   const contact = cleanupObject(asRecord(s1.contact));
 
   return {
     style: asString(s1.style) || "professional",
-    ...(Object.keys(headings).length > 0 ? { headings } : {}),
     contact: {
       name: asString(contact.name),
       ...(asString(contact.email) ? { email: asString(contact.email) } : {}),

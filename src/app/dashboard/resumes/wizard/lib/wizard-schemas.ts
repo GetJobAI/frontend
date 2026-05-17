@@ -16,7 +16,6 @@ export const sectionHeadingsSchema = z.object({
 });
 
 export const step1Schema = z.object({
-  style: styleEnum.default("professional"),
   contact: z.object({
     name: z.string().min(1, "Name is required"),
     email: z
@@ -29,7 +28,6 @@ export const step1Schema = z.object({
     linkedin: z.string().optional(),
     github: z.string().optional(),
   }),
-  headings: sectionHeadingsSchema.optional(),
 });
 
 export const step2Schema = z.object({
@@ -138,7 +136,7 @@ export const stepSchemas = {
 export type StepNumber = keyof typeof stepSchemas;
 
 export const STEP_META = [
-  { step: 1, label: "Contact", description: "Identity, links, and style" },
+  { step: 1, label: "Contact", description: "Identity and links" },
   { step: 2, label: "Summary", description: "Professional overview" },
   { step: 3, label: "Experience", description: "Work history" },
   { step: 4, label: "Education", description: "Academic background" },

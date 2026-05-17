@@ -10,23 +10,8 @@ import { SectionHeader } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
 import { Field, FieldLabel, FieldError } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import { Controller } from "react-hook-form";
 
 type Step1Data = z.infer<typeof step1Schema>;
-type StyleValue = Step1Data["style"];
-
-const STYLE_OPTIONS: Array<{ value: StyleValue; label: string }> = [
-  { value: "professional", label: "Professional" },
-  { value: "technical", label: "Technical" },
-  { value: "minimal", label: "Minimal" },
-];
 
 export function Step1PersonalInfo() {
   const { sessionId, stepData, nextStep } = useWizard();
@@ -36,7 +21,6 @@ export function Step1PersonalInfo() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
     resolver: zodResolver(step1Schema) as any,
     defaultValues: saved ?? {
-      style: "professional",
       contact: {
         name: "",
         email: "",
@@ -45,7 +29,6 @@ export function Step1PersonalInfo() {
         linkedin: "",
         github: "",
       },
-      headings: {},
     },
     mode: "onChange",
   });
@@ -61,33 +44,11 @@ export function Step1PersonalInfo() {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
       <SectionHeader
-        title="Contact and style"
-        description="Provide contact details and choose a template style for your generated resume."
+        title="Contact info"
+        description="Provide your contact details. You will choose a template style after completing the wizard."
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Field className="sm:col-span-2">
-          <FieldLabel htmlFor="style">Style</FieldLabel>
-          <Controller
-            control={form.control}
-            name="style"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger id="style">
-                  <SelectValue placeholder="Select style" />
-                </SelectTrigger>
-                <SelectContent>
-                  {STYLE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </Field>
-
         <Field data-invalid={!!form.formState.errors.contact?.name}>
           <FieldLabel htmlFor="contact.name">
             Name <span className="ml-0.5 text-violet-400">*</span>
@@ -169,108 +130,6 @@ export function Step1PersonalInfo() {
           />
           <FieldError>
             {form.formState.errors.contact?.github?.message}
-          </FieldError>
-        </Field>
-
-        <Field className="sm:col-span-2">
-          <FieldLabel htmlFor="headings.summary" className="mt-4">
-            Optional custom section headings
-          </FieldLabel>
-          <p className="text-[11px] text-neutral-600">
-            Leave blank to use default headings from the selected style.
-          </p>
-        </Field>
-
-        <Field data-invalid={!!form.formState.errors.headings?.summary}>
-          <FieldLabel htmlFor="headings.summary">Summary heading</FieldLabel>
-          <Input
-            id="headings.summary"
-            placeholder="Summary"
-            {...form.register("headings.summary")}
-            aria-invalid={!!form.formState.errors.headings?.summary}
-          />
-          <FieldError>
-            {form.formState.errors.headings?.summary?.message}
-          </FieldError>
-        </Field>
-        <Field data-invalid={!!form.formState.errors.headings?.experience}>
-          <FieldLabel htmlFor="headings.experience">
-            Experience heading
-          </FieldLabel>
-          <Input
-            id="headings.experience"
-            placeholder="Experience"
-            {...form.register("headings.experience")}
-            aria-invalid={!!form.formState.errors.headings?.experience}
-          />
-          <FieldError>
-            {form.formState.errors.headings?.experience?.message}
-          </FieldError>
-        </Field>
-        <Field data-invalid={!!form.formState.errors.headings?.education}>
-          <FieldLabel htmlFor="headings.education">
-            Education heading
-          </FieldLabel>
-          <Input
-            id="headings.education"
-            placeholder="Education"
-            {...form.register("headings.education")}
-            aria-invalid={!!form.formState.errors.headings?.education}
-          />
-          <FieldError>
-            {form.formState.errors.headings?.education?.message}
-          </FieldError>
-        </Field>
-        <Field data-invalid={!!form.formState.errors.headings?.skills}>
-          <FieldLabel htmlFor="headings.skills">Skills heading</FieldLabel>
-          <Input
-            id="headings.skills"
-            placeholder="Skills"
-            {...form.register("headings.skills")}
-            aria-invalid={!!form.formState.errors.headings?.skills}
-          />
-          <FieldError>
-            {form.formState.errors.headings?.skills?.message}
-          </FieldError>
-        </Field>
-        <Field data-invalid={!!form.formState.errors.headings?.certifications}>
-          <FieldLabel htmlFor="headings.certifications">
-            Certifications heading
-          </FieldLabel>
-          <Input
-            id="headings.certifications"
-            placeholder="Certifications"
-            {...form.register("headings.certifications")}
-            aria-invalid={!!form.formState.errors.headings?.certifications}
-          />
-          <FieldError>
-            {form.formState.errors.headings?.certifications?.message}
-          </FieldError>
-        </Field>
-        <Field data-invalid={!!form.formState.errors.headings?.projects}>
-          <FieldLabel htmlFor="headings.projects">Projects heading</FieldLabel>
-          <Input
-            id="headings.projects"
-            placeholder="Projects"
-            {...form.register("headings.projects")}
-            aria-invalid={!!form.formState.errors.headings?.projects}
-          />
-          <FieldError>
-            {form.formState.errors.headings?.projects?.message}
-          </FieldError>
-        </Field>
-        <Field data-invalid={!!form.formState.errors.headings?.languages}>
-          <FieldLabel htmlFor="headings.languages">
-            Languages heading
-          </FieldLabel>
-          <Input
-            id="headings.languages"
-            placeholder="Languages"
-            {...form.register("headings.languages")}
-            aria-invalid={!!form.formState.errors.headings?.languages}
-          />
-          <FieldError>
-            {form.formState.errors.headings?.languages?.message}
           </FieldError>
         </Field>
       </div>

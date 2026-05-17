@@ -20,6 +20,7 @@ import {
   SidebarProvider,
   useSidebar,
 } from "~/components/ui/sidebar";
+import { dashboardMainPaddingStyle } from "./dashboard-main-padding";
 
 function DashboardSidebarTrigger() {
   const { setOpen, setOpenMobile } = useSidebar();
@@ -198,20 +199,21 @@ export function DashboardSidebar({ children }: { children: ReactNode }) {
   return (
     <SidebarProvider
       defaultOpen
-      className="min-h-screen bg-[#0a0a0a]"
+      className="h-svh min-h-0 overflow-hidden bg-[#0a0a0a]"
       style={
         {
           "--sidebar-width": "15rem",
           "--sidebar-width-icon": "5rem",
+          ...dashboardMainPaddingStyle,
         } as CSSProperties
       }
     >
       <DashboardSidebarTrigger />
       <DashboardSidebarPanel />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex h-svh min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
         <main
           id="dashboard-main"
-          className="app-main-noise flex flex-1 flex-col p-5 pt-16 pb-16 md:p-16"
+          className="dashboard-main app-main-noise box-border flex min-h-0 flex-1 flex-col overflow-hidden"
         >
           {children}
         </main>

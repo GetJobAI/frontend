@@ -2,10 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { FileJson, Pencil, Sparkles, Trash2 } from "lucide-react";
+import { FileText, Pencil, Sparkles, Trash2 } from "lucide-react";
 
 import { ConfirmDialog } from "~/components/global/ConfirmDialog";
-import { ResumeJsonDialog } from "~/components/global/ResumeJsonDialog";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -33,10 +32,8 @@ interface ResumesListClientProps {
 export function ResumesListClient({ resumes }: ResumesListClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [selectedResume, setSelectedResume] = useState<ResumeItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ResumeItem | null>(null);
   const [optimizeInfoOpen, setOptimizeInfoOpen] = useState(false);
-  const [editInfoOpen, setEditInfoOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const rows = useMemo(() => resumes, [resumes]);
@@ -67,7 +64,7 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
 
         {rows.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 px-4 py-16 text-center">
-            <FileJson className="size-6 text-violet-400/60" />
+            <FileText className="size-6 text-violet-400/60" />
             <p className="text-sm font-medium text-white">No resumes yet</p>
             <p className="text-xs text-neutral-500">
               Use one of the creation paths above to generate your first resume.
@@ -80,11 +77,11 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
                 key={resume.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => setSelectedResume(resume)}
+                onClick={() => router.push(`/dashboard/resumes/${resume.id}`)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    setSelectedResume(resume);
+                    router.push(`/dashboard/resumes/${resume.id}`);
                   }
                 }}
                 className="group flex w-full cursor-pointer items-center justify-between gap-4 px-4 py-3 text-left transition-colors hover:bg-white/3"
@@ -118,10 +115,10 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
                     type="button"
                     size="icon-sm"
                     variant="outline"
-                    title="Edit (coming soon)"
+                    title="Edit resume"
                     onClick={(event) => {
                       event.stopPropagation();
-                      setEditInfoOpen(true);
+                      router.push(`/dashboard/resumes/${resume.id}`);
                     }}
                   >
                     <Pencil />
@@ -145,16 +142,6 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
         )}
       </div>
 
-      <ResumeJsonDialog
-        open={Boolean(selectedResume)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setSelectedResume(null);
-          }
-        }}
-        resumeContent={selectedResume?.content}
-      />
-
       <Dialog open={optimizeInfoOpen} onOpenChange={setOptimizeInfoOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -162,18 +149,6 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
             <DialogDescription>
               Resume optimization flow is planned, but not available in this
               build yet.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={editInfoOpen} onOpenChange={setEditInfoOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit is not implemented yet</DialogTitle>
-            <DialogDescription>
-              Direct resume editing from this list will be added in a future
-              update.
             </DialogDescription>
           </DialogHeader>
         </DialogContent>

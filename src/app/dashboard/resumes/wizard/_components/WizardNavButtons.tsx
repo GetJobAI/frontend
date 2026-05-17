@@ -32,7 +32,7 @@ export function WizardNavButtons({
         className={cn(
           "flex cursor-pointer items-center gap-2 rounded-lg border border-white/8 bg-white/4 px-4 py-2 text-sm font-medium text-neutral-400 transition-all",
           "hover:border-white/14 hover:bg-white/6 hover:text-white",
-          "disabled:cursor-not-allowed disabled:opacity-30",
+          "disabled:opacity-30",
         )}
       >
         <ArrowLeft className="size-3.5" strokeWidth={2} />
@@ -46,7 +46,7 @@ export function WizardNavButtons({
         className={cn(
           "flex cursor-pointer items-center gap-2 rounded-lg bg-violet-600 px-5 py-2 text-sm font-semibold text-white transition-all",
           "hover:bg-violet-500 hover:shadow-[0_0_20px_rgba(124,58,237,0.4)]",
-          "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-violet-600 disabled:hover:shadow-none",
+          "disabled:opacity-40 disabled:hover:bg-violet-600 disabled:hover:shadow-none",
           "active:scale-[0.98] disabled:active:scale-100",
         )}
       >

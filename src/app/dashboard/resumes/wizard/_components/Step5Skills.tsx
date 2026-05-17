@@ -65,7 +65,7 @@ export function Step5Skills() {
                 </FieldLabel>
                 <Input
                   id={`skill-category-${idx}`}
-                  placeholder="Languages"
+                  placeholder="Technical"
                   {...form.register(`skills.${idx}.category`)}
                   aria-invalid={!!form.formState.errors.skills?.[idx]?.category}
                 />

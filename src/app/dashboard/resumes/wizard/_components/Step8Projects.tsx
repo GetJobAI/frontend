@@ -76,14 +76,15 @@ export function Step8Projects() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field
+                className="sm:col-span-2"
                 data-invalid={!!form.formState.errors.projects?.[idx]?.name}
               >
                 <FieldLabel htmlFor={`proj-name-${idx}`}>
-                  Project Name <span className="ml-0.5 text-violet-400">*</span>
+                  Project name <span className="ml-0.5 text-violet-400">*</span>
                 </FieldLabel>
                 <Input
                   id={`proj-name-${idx}`}
-                  placeholder="ResumeAI Pro"
+                  placeholder="GetJob AI"
                   {...form.register(`projects.${idx}.name`)}
                   aria-invalid={!!form.formState.errors.projects?.[idx]?.name}
                 />

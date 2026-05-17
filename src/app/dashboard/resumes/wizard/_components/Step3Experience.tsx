@@ -81,7 +81,7 @@ export function Step3Experience() {
                 data-invalid={!!form.formState.errors.experience?.[idx]?.title}
               >
                 <FieldLabel htmlFor={`exp-title-${idx}`}>
-                  Job Title <span className="ml-0.5 text-violet-400">*</span>
+                  Job title <span className="ml-0.5 text-violet-400">*</span>
                 </FieldLabel>
                 <Input
                   id={`exp-title-${idx}`}
