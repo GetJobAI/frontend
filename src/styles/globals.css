@@ -151,19 +151,6 @@
       0 0 120px oklch(0.65 0.22 293 / 8%);
   }
 
-  .dashboard-main {
-    padding-left: var(--dashboard-main-padding-x, 1rem);
-    padding-right: var(--dashboard-main-padding-x, 1rem);
-    padding-top: var(--dashboard-main-padding-top, 4rem);
-    padding-bottom: var(--dashboard-main-padding-bottom, 4rem);
-  }
-
-  @media (min-width: 48rem) {
-    .dashboard-main {
-      padding: var(--dashboard-main-padding-md, 1rem);
-    }
-  }
-
   .card-surface {
     background: oklch(0.13 0 0);
     border: 1px solid oklch(1 0 0 / 8%);

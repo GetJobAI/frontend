@@ -12,7 +12,7 @@ export function DashboardPageFill({
   return (
     <div
       className={cn(
-        "flex min-h-0 flex-1 basis-0 flex-col overflow-hidden",
+        "flex min-h-0 flex-1 basis-0 flex-col overflow-hidden p-4 sm:p-6",
         className,
       )}
     >

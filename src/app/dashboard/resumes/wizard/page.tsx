@@ -12,5 +12,9 @@ export default async function WizardPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  return <WizardShell />;
+  return (
+    <div className="px-4 py-8 sm:px-6 sm:py-10">
+      <WizardShell />
+    </div>
+  );
 }

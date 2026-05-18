@@ -94,6 +94,69 @@ function ResumeBadge({
   );
 }
 
+function ResumeDocArt() {
+  return (
+    <div className="relative mx-auto w-[120px]" aria-hidden>
+      {/* shadow card */}
+      <div className="absolute top-3 left-3 h-full w-full rounded-2xl border border-white/4 bg-white/2" />
+      {/* main card */}
+      <div className="relative rounded-2xl border border-white/8 bg-[#131313] p-5">
+        <div className="mb-4 flex items-center gap-2.5">
+          <div className="size-7 rounded-full bg-violet-500/20" />
+          <div className="flex flex-col gap-1">
+            <div className="h-1.5 w-16 rounded-full bg-white/12" />
+            <div className="h-1.5 w-10 rounded-full bg-white/6" />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          {[14, 20, 12, 18, 10].map((w, i) => (
+            <div
+              key={i}
+              className="h-1 rounded-full bg-white/8"
+              style={{ width: `${w * 4}px` }}
+            />
+          ))}
+        </div>
+        <div className="mt-3 flex flex-col gap-1.5">
+          {[16, 22, 14].map((w, i) => (
+            <div
+              key={i}
+              className="h-1 rounded-full bg-white/6"
+              style={{ width: `${w * 4}px` }}
+            />
+          ))}
+        </div>
+        <div
+          className="pointer-events-none absolute inset-0 rounded-2xl"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(139,92,246,0.08) 0%, transparent 70%)",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center py-12">
+      <div className="flex flex-col items-center gap-6 text-center">
+        <ResumeDocArt />
+        <div className="flex flex-col gap-2">
+          <h2 className="text-xl font-semibold tracking-tight text-white">
+            Build your first resume
+          </h2>
+          <p className="max-w-xs text-sm leading-relaxed text-neutral-500">
+            Choose how you want to start. We&apos;ll help you create a tailored
+            resume that gets past ATS filters.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ResumesListClient({ resumes }: ResumesListClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -120,19 +183,7 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
   };
 
   if (rows.length === 0) {
-    return (
-      <div className="card-surface flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
-        <span className="flex size-12 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400">
-          <FileText className="size-5" strokeWidth={1.7} />
-        </span>
-        <div className="flex max-w-sm flex-col gap-1">
-          <p className="text-base font-semibold text-white">No resumes yet</p>
-          <p className="text-sm text-neutral-500">
-            Pick a creation path above to build or import your first resume.
-          </p>
-        </div>
-      </div>
-    );
+    return <EmptyState />;
   }
 
   return (
@@ -205,26 +256,33 @@ export function ResumesListClient({ resumes }: ResumesListClientProps) {
                     </span>
                   </Link>
 
-                  <div className="flex shrink-0 items-center gap-2 border-t border-white/6 p-4 sm:gap-3 sm:px-6 lg:border-t-0 lg:border-l lg:p-5">
+                  <div className="flex w-full shrink-0 gap-2 border-t border-white/6 p-4 sm:gap-3 sm:px-6 lg:w-auto lg:items-center lg:border-t-0 lg:border-l lg:p-5">
                     <Button
                       asChild
-                      size="icon"
                       title="Optimize for a job"
-                      className="size-12 cursor-pointer rounded-xl border-violet-500/25 bg-violet-500/10 text-violet-200 shadow-[0_0_24px_rgba(139,92,246,0.12)] transition-all hover:border-violet-400/45 hover:bg-violet-500/16 hover:text-white"
+                      className="h-12 min-w-0 flex-1 cursor-pointer rounded-xl border border-violet-500/25 bg-violet-500/10 text-violet-200 shadow-[0_0_24px_rgba(139,92,246,0.12)] transition-all hover:border-violet-400/45 hover:bg-violet-500/16 hover:text-white lg:size-12 lg:flex-none lg:border"
                     >
-                      <Link href={optimizeHref}>
-                        <Sparkles className="size-5" />
+                      <Link
+                        href={optimizeHref}
+                        className="inline-flex items-center justify-center gap-2"
+                      >
+                        <Sparkles className="size-5 shrink-0" />
+                        <span className="text-sm font-medium lg:hidden">
+                          Optimize
+                        </span>
                       </Link>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
-                      size="icon"
                       title="Delete resume"
-                      className="size-12 cursor-pointer rounded-xl border-white/8 bg-transparent text-neutral-500 hover:border-red-500/30 hover:bg-red-500/8 hover:text-red-300"
+                      className="h-12 min-w-0 flex-1 cursor-pointer rounded-xl border-white/8 bg-transparent text-neutral-500 hover:border-red-500/30 hover:bg-red-500/8 hover:text-red-300 lg:size-12 lg:flex-none lg:px-0"
                       onClick={() => setDeleteTarget(resume)}
                     >
-                      <Trash2 className="size-5" />
+                      <Trash2 className="size-5 shrink-0" />
+                      <span className="text-sm font-medium lg:hidden">
+                        Delete
+                      </span>
                     </Button>
                   </div>
                 </div>
