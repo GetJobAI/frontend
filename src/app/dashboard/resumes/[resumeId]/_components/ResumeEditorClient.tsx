@@ -73,8 +73,8 @@ export function ResumeEditorClient({
     <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden md:gap-3">
       <EditorTabStrip activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 md:gap-4">
-        <div className="card-surface flex min-h-0 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto md:grid md:grid-cols-2 md:gap-4 md:overflow-hidden">
+        <div className="card-surface flex min-h-[min(55vh,32rem)] shrink-0 flex-col overflow-hidden md:min-h-0">
           <EditorSidebar
             resumeId={resumeId}
             activeTab={activeTab}
@@ -84,7 +84,7 @@ export function ResumeEditorClient({
           />
         </div>
 
-        <div className="card-surface flex min-h-0 flex-col overflow-hidden">
+        <div className="card-surface flex min-h-[min(55vh,32rem)] shrink-0 flex-col overflow-hidden md:min-h-0">
           <PdfPreview content={content} onStyleChange={handleStyleChange} />
         </div>
       </div>

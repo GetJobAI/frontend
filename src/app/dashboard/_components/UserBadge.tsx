@@ -17,7 +17,7 @@ export function UserBadge() {
 
   return (
     <>
-      <div className="card-surface flex items-stretch overflow-hidden rounded-xl">
+      <div className="card-surface flex shrink-0 items-stretch overflow-hidden rounded-xl">
         <button
           type="button"
           onClick={() => openUserProfile()}
@@ -30,26 +30,28 @@ export function UserBadge() {
               alt={username}
               width={22}
               height={22}
-              className="size-[22px] rounded-full object-cover ring-1 ring-white/10"
+              className="size-[22px] shrink-0 rounded-full object-cover ring-1 ring-white/10"
             />
           ) : (
-            <span className="flex size-[22px] items-center justify-center rounded-full bg-violet-500/20 text-[9px] font-semibold text-violet-300">
+            <span className="flex size-[22px] shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-[9px] font-semibold text-violet-300">
               {username.charAt(0).toUpperCase()}
             </span>
           )}
-          <span>{username}</span>
+          <span className="hidden max-w-[5rem] truncate sm:inline sm:max-w-none">
+            {username}
+          </span>
         </button>
 
-        <div className="w-px self-stretch bg-white/6" />
+        <div className="w-px shrink-0 self-stretch bg-white/6" />
 
         <button
           type="button"
           onClick={() => setLogoutOpen(true)}
-          className="flex cursor-pointer items-center gap-2 px-4 py-3 text-sm font-medium text-neutral-500 transition-colors hover:bg-white/4 hover:text-neutral-200"
+          className="flex shrink-0 cursor-pointer items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-neutral-500 transition-colors hover:bg-white/4 hover:text-neutral-200"
           aria-label="Log out"
         >
           <LogOut className="size-4" strokeWidth={1.7} />
-          <span>Log out</span>
+          <span className="hidden sm:inline">Log out</span>
         </button>
       </div>
 
