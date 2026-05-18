@@ -208,7 +208,7 @@ export default async function DashboardPage() {
         <div className="col-span-1 flex min-h-0 flex-col gap-4 lg:col-span-2">
           <Link
             id="optimize-card"
-            href="/dashboard/optimize"
+            href="/dashboard/resumes"
             className="card-surface card-surface-hover group relative flex flex-col gap-4 overflow-hidden p-5"
           >
             <div

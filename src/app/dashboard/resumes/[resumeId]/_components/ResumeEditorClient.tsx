@@ -11,14 +11,18 @@ import { updateResumeContentAction } from "~/server/actions/resume/actions";
 interface ResumeEditorClientProps {
   resumeId: string;
   initialContent: ResumeContent;
+  initialTab?: EditorTabId;
 }
 
 export function ResumeEditorClient({
   resumeId,
   initialContent,
+  initialTab,
 }: ResumeEditorClientProps) {
   const [content, setContent] = useState<ResumeContent>(initialContent);
-  const [activeTab, setActiveTab] = useState<EditorTabId>("personal");
+  const [activeTab, setActiveTab] = useState<EditorTabId>(
+    initialTab ?? "personal",
+  );
   const [isSaving, startSave] = useTransition();
   const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestContentRef = useRef<ResumeContent>(initialContent);

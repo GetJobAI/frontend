@@ -16,19 +16,23 @@ export default async function ResumesPage() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-6">
-      <div>
+    <div className="flex min-h-0 flex-1 flex-col gap-6">
+      <div className="shrink-0">
         <h1 className="text-xl font-semibold text-white">Resumes</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Create, inspect, and manage all of your resumes.
+          Create, tailor, and manage every version of your CV.
         </p>
       </div>
 
-      <ResumesCreatePaths />
+      <div className="shrink-0">
+        <ResumesCreatePaths />
+      </div>
 
-      <Suspense fallback={<ResumesListSkeleton />}>
-        <ResumesList />
-      </Suspense>
+      <div className="flex min-h-0 flex-1 flex-col">
+        <Suspense fallback={<ResumesListSkeleton />}>
+          <ResumesList />
+        </Suspense>
+      </div>
     </div>
   );
 }

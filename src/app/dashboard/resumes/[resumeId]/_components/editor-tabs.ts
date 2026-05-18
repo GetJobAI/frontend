@@ -25,6 +25,17 @@ export const EDITOR_TABS: Array<{ id: EditorTabId; label: string }> = [
   { id: "finish", label: "Finish" },
 ];
 
+const EDITOR_TAB_IDS = new Set<string>(EDITOR_TABS.map((tab) => tab.id));
+
+export function parseEditorTab(
+  value: string | undefined,
+): EditorTabId | undefined {
+  if (value && EDITOR_TAB_IDS.has(value)) {
+    return value as EditorTabId;
+  }
+  return undefined;
+}
+
 export const EDITOR_TAB_META: Record<
   EditorTabId,
   { title: string; description?: string }

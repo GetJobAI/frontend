@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutTemplate, FileText, LayoutGrid, Settings } from "lucide-react";
+import { FileText, LayoutGrid, Settings } from "lucide-react";
 import { cn } from "~/lib/utils";
 
 const navItems = [
@@ -18,13 +18,6 @@ const navItems = [
     href: "/dashboard/resumes",
     label: "Resumes",
     icon: FileText,
-    exact: false,
-  },
-  {
-    id: "nav-templates",
-    href: "/dashboard/templates",
-    label: "Templates",
-    icon: LayoutTemplate,
     exact: false,
   },
   {
