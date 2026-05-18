@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { type Metadata } from "next";
 import { WizardShell } from "./_components/WizardShell";
+import { DashboardBackground } from "~/app/dashboard/_components/DashboardBackground";
 
 export const metadata: Metadata = {
   title: "Resume Wizard",
@@ -13,8 +14,11 @@ export default async function WizardPage() {
   if (!userId) redirect("/sign-in");
 
   return (
-    <div className="px-4 py-8 sm:px-6 sm:py-10">
-      <WizardShell />
-    </div>
+    <>
+      <DashboardBackground />
+      <div className="px-4 py-8 sm:px-6 sm:py-10">
+        <WizardShell />
+      </div>
+    </>
   );
 }
