@@ -2,6 +2,7 @@ import { type Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { currentUser } from "@clerk/nextjs/server";
+import { and, eq, isNull } from "drizzle-orm";
 
 import { getUserId } from "~/lib/auth";
 import { DashboardBackground } from "~/app/dashboard/_components/DashboardBackground";
@@ -9,6 +10,8 @@ import { UserBadge } from "~/app/dashboard/_components/UserBadge";
 import { ResumesCreatePaths } from "~/app/dashboard/resumes/_components/ResumesCreatePaths";
 import { ResumesList } from "~/app/dashboard/resumes/_components/ResumesList";
 import { ResumesListSkeleton } from "~/app/dashboard/resumes/_components/ResumesListSkeleton";
+import { db } from "~/server/db";
+import { wizardSessions } from "~/server/db/schema";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -30,6 +33,13 @@ export default async function DashboardPage() {
     month: "long",
     day: "numeric",
   });
+  const activeWizardSession = await db.query.wizardSessions.findFirst({
+    where: and(
+      eq(wizardSessions.userId, userId),
+      isNull(wizardSessions.completedAt),
+    ),
+    columns: { id: true },
+  });
 
   return (
     <>
@@ -48,7 +58,9 @@ export default async function DashboardPage() {
         </div>
 
         <section aria-label="Create a resume">
-          <ResumesCreatePaths />
+          <ResumesCreatePaths
+            hasUnfinishedWizardSession={!!activeWizardSession}
+          />
         </section>
 
         <section

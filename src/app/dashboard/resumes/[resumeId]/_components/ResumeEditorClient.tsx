@@ -21,7 +21,7 @@ export function ResumeEditorClient({
 }: ResumeEditorClientProps) {
   const [content, setContent] = useState<ResumeContent>(initialContent);
   const [activeTab, setActiveTab] = useState<EditorTabId>(
-    initialTab ?? "personal",
+    initialTab ?? "job-tailoring",
   );
   const [isSaving, startSave] = useTransition();
   const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);

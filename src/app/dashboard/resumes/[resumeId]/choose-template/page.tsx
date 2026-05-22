@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { getUserId } from "~/lib/auth";
 import { getResumeAction } from "~/server/actions/resume/actions";
 import { DashboardPageFill } from "~/app/dashboard/_components/DashboardPageFill";
+import { DashboardBackground } from "~/app/dashboard/_components/DashboardBackground";
 import { ChooseTemplateClient } from "./_components/ChooseTemplateClient";
 
 export const metadata: Metadata = { title: "Choose Template" };
@@ -35,6 +36,7 @@ export default async function ChooseTemplatePage({ params }: Props) {
 
   return (
     <DashboardPageFill>
+      <DashboardBackground />
       <ChooseTemplateClient
         resumeId={resumeId}
         currentStyle={currentStyle}

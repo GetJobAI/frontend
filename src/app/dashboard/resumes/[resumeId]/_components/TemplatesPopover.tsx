@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Layers } from "lucide-react";
 import { cn } from "~/lib/utils";
@@ -83,38 +84,23 @@ export function TemplatesPopover({
 }
 
 function TemplateMiniPreview({ style }: { style: StyleValue }) {
-  if (style === "technical") {
-    return (
-      <div className="flex h-9 w-7 shrink-0 overflow-hidden rounded border border-white/15 bg-neutral-900">
-        <div className="w-2/5 border-r border-white/10 bg-white/5" />
-        <div className="flex flex-1 flex-col gap-0.5 p-0.5 pt-1">
-          <div className="h-0.5 w-4/5 rounded-sm bg-white/40" />
-          <div className="h-0.5 w-3/5 rounded-sm bg-white/20" />
-          <div className="h-0.5 w-full rounded-sm bg-white/20" />
-        </div>
-      </div>
-    );
-  }
-  if (style === "minimal") {
-    return (
-      <div className="flex h-9 w-7 shrink-0 flex-col gap-0.5 overflow-hidden rounded border border-white/15 bg-neutral-900 p-1 pt-1.5">
-        <div className="h-1 w-3/4 rounded-sm bg-white/60" />
-        <div className="mt-0.5 h-0.5 w-full rounded-sm bg-white/20" />
-        <div className="h-0.5 w-full rounded-sm bg-white/20" />
-        <div className="mt-0.5 h-0.5 w-4/5 rounded-sm bg-white/10" />
-      </div>
-    );
-  }
+  const previewSrc =
+    style === "technical"
+      ? "/resume-templates/technical.webp"
+      : style === "minimal"
+        ? "/resume-templates/minimal.webp"
+        : "/resume-templates/professional.webp";
+
   return (
-    <div className="flex h-9 w-7 shrink-0 flex-col overflow-hidden rounded border border-white/15 bg-neutral-900">
-      <div className="border-b border-white/10 px-0.5 py-0.5">
-        <div className="h-1 w-3/4 rounded-sm bg-white/50" />
-      </div>
-      <div className="flex flex-1 flex-col gap-0.5 p-0.5">
-        <div className="h-0.5 w-full rounded-sm bg-white/20" />
-        <div className="h-0.5 w-4/5 rounded-sm bg-white/15" />
-        <div className="h-0.5 w-full rounded-sm bg-white/15" />
-      </div>
+    <div className="h-9 w-7 shrink-0 overflow-hidden rounded border border-white/15 bg-neutral-900">
+      <Image
+        src={previewSrc}
+        alt={`${style} template preview`}
+        width={863}
+        height={1222}
+        className="h-full w-full object-cover object-top"
+        sizes="28px"
+      />
     </div>
   );
 }

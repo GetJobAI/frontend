@@ -24,7 +24,7 @@ export function EditorTabStrip({
               onClick={() => onTabChange(tab.id)}
               title={tab.label}
               className={cn(
-                "flex h-11 w-[5.25rem] shrink-0 cursor-pointer flex-col items-center justify-center px-2 py-3 transition-all md:min-w-0 md:flex-1 md:w-auto",
+                "flex h-11 w-[5.25rem] shrink-0 cursor-pointer flex-col items-center justify-center px-2 py-3 transition-all md:w-auto md:min-w-0 md:flex-1",
                 isActive
                   ? "bg-violet-500/15 text-violet-300"
                   : "bg-black text-neutral-500 hover:bg-white/8 hover:text-neutral-300",

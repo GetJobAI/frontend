@@ -5,7 +5,7 @@
 
 Welcome to the **GetJob AI** API documentation.
 
- * OpenAPI spec version: 14.11
+ * OpenAPI spec version: 14.12
  */
 import type { RowFilterAtsScoresAnalysisParameter } from "./rowFilterAtsScoresAnalysisParameter";
 import type { RowFilterAtsScoresCreatedAtParameter } from "./rowFilterAtsScoresCreatedAtParameter";

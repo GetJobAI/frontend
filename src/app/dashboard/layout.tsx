@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { DashboardHomeFab } from "~/app/dashboard/_components/DashboardHomeFab";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
@@ -6,6 +7,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <main className="app-main-noise relative z-10 flex min-h-0 flex-1 flex-col">
         {children}
       </main>
+      <DashboardHomeFab />
     </div>
   );
 }
