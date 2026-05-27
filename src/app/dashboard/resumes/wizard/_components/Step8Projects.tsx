@@ -84,7 +84,7 @@ export function Step8Projects() {
                 </FieldLabel>
                 <Input
                   id={`proj-name-${idx}`}
-                  placeholder="GetJob AI"
+                  placeholder="GetjobAI"
                   {...form.register(`projects.${idx}.name`)}
                   aria-invalid={!!form.formState.errors.projects?.[idx]?.name}
                 />

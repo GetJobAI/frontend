@@ -15,42 +15,42 @@ import type {
   SchemaMigrations,
 } from "../schemas";
 
-import { backendMutator } from "../../backend-core-mutator";
+import { coreMutator } from "../../core-mutator";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 export const getSchemaMigrations = (
   params?: GetSchemaMigrationsParams,
-  options?: SecondParameter<typeof backendMutator<SchemaMigrations[] | void>>,
+  options?: SecondParameter<typeof coreMutator<SchemaMigrations[] | void>>,
 ) => {
-  return backendMutator<SchemaMigrations[] | void>(
+  return coreMutator<SchemaMigrations[] | void>(
     { url: `/schema_migrations`, method: "GET", params },
     options,
   );
 };
 export const postSchemaMigrations = (
   params?: PostSchemaMigrationsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/schema_migrations`, method: "POST", params },
     options,
   );
 };
 export const deleteSchemaMigrations = (
   params?: DeleteSchemaMigrationsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/schema_migrations`, method: "DELETE", params },
     options,
   );
 };
 export const patchSchemaMigrations = (
   params?: PatchSchemaMigrationsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/schema_migrations`, method: "PATCH", params },
     options,
   );

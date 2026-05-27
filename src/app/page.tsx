@@ -5,7 +5,7 @@ import { LinkedInIcon } from "~/components/global/LinkedInIcon";
 import { Logo } from "~/components/global/Logo";
 
 export const metadata: Metadata = {
-  title: "GetJobAI — AI-powered resume optimization",
+  title: "GetjobAI — AI-powered resume optimization",
   description:
     "Beat ATS filters and land more interviews. AI resume rewriting, ATS scoring, and LinkedIn import — in under 60 seconds.",
 };

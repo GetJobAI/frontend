@@ -7,7 +7,7 @@
  */
 import type { ResumeData } from "./schemas";
 
-import { backendPdfMutator } from "../../backend-pdf-mutator";
+import { pdfGeneratorMutator } from "../../pdf-generator-mutator";
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
@@ -19,9 +19,9 @@ treated as plain text. Injection prevention mechanisms are in place.
  */
 export const generatePdf = (
   resumeData: ResumeData,
-  options?: SecondParameter<typeof backendPdfMutator<Blob>>,
+  options?: SecondParameter<typeof pdfGeneratorMutator<Blob>>,
 ) => {
-  return backendPdfMutator<Blob>(
+  return pdfGeneratorMutator<Blob>(
     {
       url: `/generate`,
       method: "POST",
@@ -37,9 +37,12 @@ export const generatePdf = (
  * @summary Health check.
  */
 export const health = (
-  options?: SecondParameter<typeof backendPdfMutator<string>>,
+  options?: SecondParameter<typeof pdfGeneratorMutator<string>>,
 ) => {
-  return backendPdfMutator<string>({ url: `/health`, method: "GET" }, options);
+  return pdfGeneratorMutator<string>(
+    { url: `/health`, method: "GET" },
+    options,
+  );
 };
 
 export type GeneratePdfResult = NonNullable<

@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 
 import { env } from "~/env";
 
-type BackendMutatorOptions = {
+type MutatorOptions = {
   basePath: string;
   logPrefix: string;
   fallbackErrorMessage: string;
@@ -11,18 +11,18 @@ type BackendMutatorOptions = {
 
 const clientCache = new Map<string, AxiosInstance>();
 
-function getBackendAxios(options: BackendMutatorOptions): AxiosInstance {
+function getAxios(options: MutatorOptions): AxiosInstance {
   const cacheKey = `${options.basePath}:${options.logPrefix}`;
   const cached = clientCache.get(cacheKey);
   if (cached) {
     return cached;
   }
 
-  const backendRoot = env.BACKEND_API_BASE_URL;
-  if (typeof backendRoot !== "string" || backendRoot.trim().length === 0) {
+  const rootUrl = env.BACKEND_API_BASE_URL;
+  if (typeof rootUrl !== "string" || rootUrl.trim().length === 0) {
     throw new Error("BACKEND_API_BASE_URL is not configured");
   }
-  const root = backendRoot.replace(/\/$/, "");
+  const root = rootUrl.replace(/\/$/, "");
   const baseURL = `${root}${options.basePath}`;
   const instance = axios.create({
     baseURL,
@@ -70,12 +70,12 @@ function getBackendAxios(options: BackendMutatorOptions): AxiosInstance {
   return instance;
 }
 
-export function createBackendMutator(options: BackendMutatorOptions) {
-  return async function backendMutator<T>(
+export function createMutator(options: MutatorOptions) {
+  return async function mutator<T>(
     config: AxiosRequestConfig,
     extraOptions?: AxiosRequestConfig,
   ): Promise<T> {
-    const instance = getBackendAxios(options);
+    const instance = getAxios(options);
     const response = await instance({
       ...config,
       ...extraOptions,

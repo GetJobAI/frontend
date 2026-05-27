@@ -107,7 +107,7 @@ export async function finalizeWizardAction(
 
     const created = await findResumeByWizardSession(userId, sessionId);
     if (!created) {
-      throw new Error("Created resume was not returned by backend");
+      throw new Error("Created resume was not returned by API");
     }
 
     await db

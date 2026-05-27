@@ -15,7 +15,7 @@ import type {
   PostJobPostingsParams,
 } from "../schemas";
 
-import { backendMutator } from "../../backend-core-mutator";
+import { coreMutator } from "../../core-mutator";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
@@ -24,9 +24,9 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  */
 export const getJobPostings = (
   params?: GetJobPostingsParams,
-  options?: SecondParameter<typeof backendMutator<JobPostings[] | void>>,
+  options?: SecondParameter<typeof coreMutator<JobPostings[] | void>>,
 ) => {
-  return backendMutator<JobPostings[] | void>(
+  return coreMutator<JobPostings[] | void>(
     { url: `/job_postings`, method: "GET", params },
     options,
   );
@@ -36,9 +36,9 @@ export const getJobPostings = (
  */
 export const postJobPostings = (
   params?: PostJobPostingsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/job_postings`, method: "POST", params },
     options,
   );
@@ -48,9 +48,9 @@ export const postJobPostings = (
  */
 export const deleteJobPostings = (
   params?: DeleteJobPostingsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/job_postings`, method: "DELETE", params },
     options,
   );
@@ -60,9 +60,9 @@ export const deleteJobPostings = (
  */
 export const patchJobPostings = (
   params?: PatchJobPostingsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/job_postings`, method: "PATCH", params },
     options,
   );

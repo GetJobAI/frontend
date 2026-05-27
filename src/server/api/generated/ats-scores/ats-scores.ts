@@ -15,7 +15,7 @@ import type {
   PostAtsScoresParams,
 } from "../schemas";
 
-import { backendMutator } from "../../backend-core-mutator";
+import { coreMutator } from "../../core-mutator";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
@@ -24,9 +24,9 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  */
 export const getAtsScores = (
   params?: GetAtsScoresParams,
-  options?: SecondParameter<typeof backendMutator<AtsScores[] | void>>,
+  options?: SecondParameter<typeof coreMutator<AtsScores[] | void>>,
 ) => {
-  return backendMutator<AtsScores[] | void>(
+  return coreMutator<AtsScores[] | void>(
     { url: `/ats_scores`, method: "GET", params },
     options,
   );
@@ -36,9 +36,9 @@ export const getAtsScores = (
  */
 export const postAtsScores = (
   params?: PostAtsScoresParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/ats_scores`, method: "POST", params },
     options,
   );
@@ -48,9 +48,9 @@ export const postAtsScores = (
  */
 export const deleteAtsScores = (
   params?: DeleteAtsScoresParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/ats_scores`, method: "DELETE", params },
     options,
   );
@@ -60,9 +60,9 @@ export const deleteAtsScores = (
  */
 export const patchAtsScores = (
   params?: PatchAtsScoresParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/ats_scores`, method: "PATCH", params },
     options,
   );

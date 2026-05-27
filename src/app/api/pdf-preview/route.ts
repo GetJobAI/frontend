@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import { NextResponse } from "next/server";
-import { generatePdf } from "~/server/api/generated/pdf/pdf-generator";
-import type { ResumeData } from "~/server/api/generated/pdf/schemas";
+import { generatePdf } from "~/server/api/generated/pdf-generator/pdf-generator";
+import type { ResumeData } from "~/server/api/generated/pdf-generator/schemas";
 
 async function toPdfArrayBuffer(data: unknown): Promise<ArrayBuffer> {
   if (Buffer.isBuffer(data)) {

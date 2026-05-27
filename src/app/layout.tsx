@@ -10,8 +10,8 @@ import { AppQueryProvider } from "~/components/providers/AppQueryProvider";
 
 export const metadata: Metadata = {
   title: {
-    default: "GetJobAI — AI-Powered Resume Optimization",
-    template: "%s | GetJobAI",
+    default: "GetjobAI — AI-Powered Resume Optimization",
+    template: "%s | GetjobAI",
   },
   description:
     "Get past ATS filters and land more interviews. AI-powered resume optimization, rewriting, and LinkedIn import — in under 60 seconds.",

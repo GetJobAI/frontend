@@ -15,7 +15,7 @@ import type {
   PostOptimizationsParams,
 } from "../schemas";
 
-import { backendMutator } from "../../backend-core-mutator";
+import { coreMutator } from "../../core-mutator";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
@@ -24,9 +24,9 @@ type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
  */
 export const getOptimizations = (
   params?: GetOptimizationsParams,
-  options?: SecondParameter<typeof backendMutator<Optimizations[] | void>>,
+  options?: SecondParameter<typeof coreMutator<Optimizations[] | void>>,
 ) => {
-  return backendMutator<Optimizations[] | void>(
+  return coreMutator<Optimizations[] | void>(
     { url: `/optimizations`, method: "GET", params },
     options,
   );
@@ -36,9 +36,9 @@ export const getOptimizations = (
  */
 export const postOptimizations = (
   params?: PostOptimizationsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/optimizations`, method: "POST", params },
     options,
   );
@@ -48,9 +48,9 @@ export const postOptimizations = (
  */
 export const deleteOptimizations = (
   params?: DeleteOptimizationsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/optimizations`, method: "DELETE", params },
     options,
   );
@@ -60,9 +60,9 @@ export const deleteOptimizations = (
  */
 export const patchOptimizations = (
   params?: PatchOptimizationsParams,
-  options?: SecondParameter<typeof backendMutator<void>>,
+  options?: SecondParameter<typeof coreMutator<void>>,
 ) => {
-  return backendMutator<void>(
+  return coreMutator<void>(
     { url: `/optimizations`, method: "PATCH", params },
     options,
   );

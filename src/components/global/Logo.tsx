@@ -30,7 +30,7 @@ export function Logo({
         className,
       )}
     >
-      GetJob
+      Getjob
       <span className="text-violet-400">AI</span>
     </span>
   );

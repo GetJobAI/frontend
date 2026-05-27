@@ -7,14 +7,14 @@ Welcome to the **GetJob AI** API documentation.
 
  * OpenAPI spec version: 14.12
  */
-import { backendMutator } from "../../backend-core-mutator";
+import { coreMutator } from "../../core-mutator";
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
  * @summary OpenAPI description (this document)
  */
-export const get = (options?: SecondParameter<typeof backendMutator<void>>) => {
-  return backendMutator<void>({ url: `/`, method: "GET" }, options);
+export const get = (options?: SecondParameter<typeof coreMutator<void>>) => {
+  return coreMutator<void>({ url: `/`, method: "GET" }, options);
 };
 export type GetResult = NonNullable<Awaited<ReturnType<typeof get>>>;
