@@ -2,6 +2,7 @@ import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios";
 import { auth } from "@clerk/nextjs/server";
 
 import { env } from "~/env";
+import { logApiRequestOutcome } from "~/server/lib/request-log";
 
 type MutatorOptions = {
   basePath: string;
@@ -27,13 +28,12 @@ function getAxios(options: MutatorOptions): AxiosInstance {
   const instance = axios.create({
     baseURL,
     headers: {
-      "Content-Type": "application/json",
       Accept: "application/json",
     },
   });
 
   instance.interceptors.request.use(async (config) => {
-    const { getToken } = await auth();
+    const { userId, getToken } = await auth();
     const token = await getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -43,6 +43,9 @@ function getAxios(options: MutatorOptions): AxiosInstance {
         url: config.url,
       });
     }
+    if (userId) {
+      config.headers["X-User-Id"] = userId;
+    }
     return config;
   });
 
@@ -51,7 +54,7 @@ function getAxios(options: MutatorOptions): AxiosInstance {
     (error: unknown) => {
       if (axios.isAxiosError(error)) {
         const responseData: unknown = error.response?.data as unknown;
-        console.error(`[${options.logPrefix}] Request failed`, {
+        console.warn(`[${options.logPrefix}] Request failed`, {
           method: error.config?.method?.toUpperCase(),
           url: error.config?.url,
           status: error.response?.status,
@@ -76,14 +79,42 @@ export function createMutator(options: MutatorOptions) {
     extraOptions?: AxiosRequestConfig,
   ): Promise<T> {
     const instance = getAxios(options);
-    const response = await instance({
+    const headers: AxiosRequestConfig["headers"] = {
+      ...config.headers,
+      ...extraOptions?.headers,
+    };
+
+    if (config.data instanceof FormData && headers) {
+      delete (headers as Record<string, unknown>)["Content-Type"];
+      delete (headers as Record<string, unknown>)["content-type"];
+    }
+
+    const requestConfig: AxiosRequestConfig = {
       ...config,
       ...extraOptions,
-      headers: {
-        ...config.headers,
-        ...extraOptions?.headers,
-      },
-    });
-    return response.data as T;
+      headers,
+    };
+
+    const startedAtMs = Date.now();
+
+    try {
+      const response = await instance(requestConfig);
+      await logApiRequestOutcome({
+        scope: options.logPrefix,
+        config: requestConfig,
+        mergedHeaders: response.config.headers,
+        startedAtMs,
+        response,
+      });
+      return response.data as T;
+    } catch (error) {
+      await logApiRequestOutcome({
+        scope: options.logPrefix,
+        config: requestConfig,
+        startedAtMs,
+        error,
+      });
+      throw error;
+    }
   };
 }
