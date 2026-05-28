@@ -32,4 +32,34 @@ export default defineConfig({
       },
     },
   },
+  optimizer: {
+    input: { target: ".docs/openapi/optimizer.json" },
+    output: {
+      target: "src/server/api/generated/optimizer/optimizer.ts",
+      schemas: "src/server/api/generated/optimizer/schemas",
+      client: "axios-functions",
+      clean: true,
+      override: {
+        mutator: {
+          path: "src/server/api/optimizer-mutator.ts",
+          name: "optimizerMutator",
+        },
+      },
+    },
+  },
+  parser: {
+    input: { target: ".docs/openapi/parser.json" },
+    output: {
+      target: "src/server/api/generated/parser/parser.ts",
+      schemas: "src/server/api/generated/parser/schemas",
+      client: "axios-functions",
+      clean: true,
+      override: {
+        mutator: {
+          path: "src/server/api/parser-mutator.ts",
+          name: "parserMutator",
+        },
+      },
+    },
+  },
 });
