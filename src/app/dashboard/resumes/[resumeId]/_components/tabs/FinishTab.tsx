@@ -29,21 +29,12 @@ function appendLogPath(parts: string[], logPath?: string | null): string {
 function formatOptimizerResult(result: TestOptimizerResult): string {
   if (result.ok) {
     const parts = [`OK: optimisation ${result.optimisationId}`];
-    if (result.atsScoreSeedSkipped) {
-      parts.push(
-        "Note: ATS score seed skipped (RLS); row came from existing pipeline.",
-      );
-    }
     if (result.coverLetterPreview) {
       parts.push(result.coverLetterPreview);
     }
     return appendLogPath(parts, result.logPath);
   }
-  const parts = [`[${result.kind}] ${result.error}`];
-  if (result.atsScoreSeedSkipped) {
-    parts.push("ATS score seed was skipped (RLS on ats_scores).");
-  }
-  return appendLogPath(parts, result.logPath);
+  return appendLogPath([`[${result.kind}] ${result.error}`], result.logPath);
 }
 
 function formatCoverLetterResult(result: TestCoverLetterResult): string {

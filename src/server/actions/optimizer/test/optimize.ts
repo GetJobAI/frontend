@@ -1,9 +1,7 @@
 "use server";
 
-import axios from "axios";
-
 import { getUserId } from "~/lib/auth";
-import { postAtsScores } from "~/server/api/generated/ats-scores/ats-scores";
+import { coreMutator } from "~/server/api/core-mutator";
 import { postJobPostings } from "~/server/api/generated/job-postings/job-postings";
 import { getOptimizations } from "~/server/api/generated/optimizations/optimizations";
 import type { JobPostings } from "~/server/api/generated/schemas";
@@ -34,14 +32,12 @@ export type TestOptimizerResult =
       ok: true;
       optimisationId: string;
       coverLetterPreview?: string;
-      atsScoreSeedSkipped?: boolean;
       logPath?: string | null;
     }
   | {
       ok: false;
       kind: OptimizerFailureKind;
       error: string;
-      atsScoreSeedSkipped?: boolean;
       logPath?: string | null;
     };
 
@@ -100,49 +96,27 @@ async function pollForOptimization(
   return null;
 }
 
-async function trySeedAtsScore(
+async function requestAtsScore(
   resumeId: string,
   jobPostingId: string,
   addStep: (name: string, data?: unknown) => void,
-): Promise<{ skipped: boolean }> {
+): Promise<void> {
   try {
-    const atsResponse = await postAtsScores(
-      undefined,
+    await coreMutator<void>(
       {
-        data: {
-          resume_id: resumeId,
-          job_posting_id: jobPostingId,
-          score: 72,
-          analysis: {
-            source: "optimizer-smoke-test",
-            note: "Artificial ATS row to exercise event pipeline",
-          },
-        },
-        headers: {
-          Prefer: "return=representation",
-        },
-        validateStatus: (status) => status === 201 || status === 200,
-        ...testHttpOptions,
+        url: `/rpc/request_ats_score`,
+        method: "POST",
+        data: { resume_id: resumeId, job_id: jobPostingId },
       },
+      { validateStatus: (s) => s === 204, ...testHttpOptions },
     );
-    addStep("ats_score.created", { atsResponse });
-    return { skipped: false };
+    addStep("ats_score.requested", { resumeId, jobPostingId });
   } catch (error) {
     const classified = classifyRequestError(error);
-    addStep("ats_score.seed_failed", {
+    addStep("ats_score.request_failed", {
       ...classified,
       axios: serializeAxiosError(error),
     });
-    if (
-      axios.isAxiosError(error) &&
-      error.response?.status === 403 &&
-      classified.kind === "auth"
-    ) {
-      addStep("ats_score.seed_skipped", {
-        reason: "RLS blocks client INSERT on ats_scores; continuing poll only",
-      });
-      return { skipped: true };
-    }
     throw error;
   }
 }
@@ -156,8 +130,6 @@ export async function testOptimizerAction(
     kind: "unknown",
     error: "Optimizer test did not run.",
   };
-  let atsScoreSeedSkipped = false;
-
   try {
     const userId = await getUserId();
     addStep("action.start", { userId, resumeId });
@@ -198,19 +170,12 @@ export async function testOptimizerAction(
       } else {
         addStep("job_posting.created", { jobPostingId });
 
-        addStep("ats_score.trigger", { method: "postAtsScores" });
-        const seed = await trySeedAtsScore(resumeId, jobPostingId, addStep);
-        atsScoreSeedSkipped = seed.skipped;
+        await requestAtsScore(resumeId, jobPostingId, addStep);
 
         let optimization = await fetchLatestOptimizationForResume(resumeId);
         if (optimization) {
           addStep("optimisation.already_present", {
             optimizationId: optimization.id,
-          });
-        } else if (atsScoreSeedSkipped) {
-          addStep("poll.skipped", {
-            reason:
-              "ATS seed failed (RLS); async pipeline will not run — not polling.",
           });
         } else {
           optimization = await pollForOptimization(resumeId, addStep);
@@ -226,7 +191,6 @@ export async function testOptimizerAction(
               ok: true,
               optimisationId: optimization.id,
               coverLetterPreview,
-              atsScoreSeedSkipped,
             };
             addStep("action.success", result);
           } catch (error) {
@@ -235,7 +199,6 @@ export async function testOptimizerAction(
               ok: false,
               kind: classified.kind,
               error: classified.message,
-              atsScoreSeedSkipped,
             };
             addStep("optimizer.cover_letter.error", {
               ...classified,
@@ -246,10 +209,7 @@ export async function testOptimizerAction(
           result = {
             ok: false,
             kind: "pipeline_timeout",
-            error: atsScoreSeedSkipped
-              ? "Pipeline cannot start: ATS score seed blocked by RLS and no existing optimisation row. Use backend ats_score_requests or fix RLS."
-              : `No optimization row within ${PIPELINE_POLL_TIMEOUT_MS / 1000}s after seeding job and ATS score.`,
-            atsScoreSeedSkipped,
+            error: `No optimization row within ${PIPELINE_POLL_TIMEOUT_MS / 1000}s after requesting ATS score.`,
           };
           addStep("poll.timeout", result);
         }
@@ -262,7 +222,6 @@ export async function testOptimizerAction(
       ok: false,
       kind: classified.kind,
       error: classified.message,
-      atsScoreSeedSkipped,
     };
     addStep("action.error", {
       ...classified,
