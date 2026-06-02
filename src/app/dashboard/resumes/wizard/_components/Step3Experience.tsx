@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFieldArray, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 import { step3Schema } from "../lib/wizard-schemas";
 import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
+import { useWizardStepForm } from "../hooks/use-wizard-step-form";
 import { useWizard } from "./WizardContext";
 import { SectionHeader, AddButton, RemoveButton, CardRow } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
@@ -17,15 +18,13 @@ import { Controller } from "react-hook-form";
 type Step3Data = z.infer<typeof step3Schema>;
 
 export function Step3Experience() {
-  const { sessionId, stepData, nextStep } = useWizard();
-  const saved = stepData[3] as Partial<Step3Data> | undefined;
-
-  const form = useForm<Step3Data>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    resolver: zodResolver(step3Schema) as any,
-    defaultValues: saved ?? { experience: [] },
-    mode: "onChange",
-  });
+  const { nextStep } = useWizard();
+  const { form, sessionId } = useWizardStepForm<Step3Data>(
+    3,
+    { experience: [] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    zodResolver(step3Schema) as any,
+  );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -210,7 +209,7 @@ function BulletsField({
   form,
   expIdx,
 }: {
-  form: ReturnType<typeof useForm<Step3Data>>;
+  form: UseFormReturn<Step3Data>;
   expIdx: number;
 }) {
   const { fields, append, remove } = useFieldArray({

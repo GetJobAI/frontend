@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import type { UseFormWatch, FieldValues } from "react-hook-form";
 import { apiNext } from "~/lib/api-next";
+import { wizardSuppressAutoSaveRef } from "../lib/wizard-auto-save-guard";
 import { wizardKeys } from "../lib/wizard-query";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -84,7 +85,7 @@ export function useWizardAutoSave<T extends FieldValues>(
     return () => {
       subscription.unsubscribe();
       clearTimeout(timerRef.current);
-      if (lastDataRef.current) {
+      if (lastDataRef.current && !wizardSuppressAutoSaveRef.current) {
         void saveNow(lastDataRef.current, { immediate: true });
       }
     };

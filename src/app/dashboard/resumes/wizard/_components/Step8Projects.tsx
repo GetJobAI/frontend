@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 import { step8Schema } from "../lib/wizard-schemas";
 import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
+import { useWizardStepForm } from "../hooks/use-wizard-step-form";
 import { useWizard } from "./WizardContext";
 import { SectionHeader, AddButton, RemoveButton, CardRow } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
@@ -16,15 +17,13 @@ import { Textarea } from "~/components/ui/textarea";
 type Step8Data = z.infer<typeof step8Schema>;
 
 export function Step8Projects() {
-  const { sessionId, stepData, nextStep } = useWizard();
-  const saved = stepData[8] as Partial<Step8Data> | undefined;
-
-  const form = useForm<Step8Data>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    resolver: zodResolver(step8Schema) as any,
-    defaultValues: saved ?? { projects: [] },
-    mode: "onChange",
-  });
+  const { nextStep } = useWizard();
+  const { form, sessionId } = useWizardStepForm<Step8Data>(
+    8,
+    { projects: [] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    zodResolver(step8Schema) as any,
+  );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,

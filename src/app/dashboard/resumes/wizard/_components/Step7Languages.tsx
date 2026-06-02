@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 import { step7Schema } from "../lib/wizard-schemas";
 import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
+import { useWizardStepForm } from "../hooks/use-wizard-step-form";
 import { useWizard } from "./WizardContext";
 import { SectionHeader, AddButton, RemoveButton } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
@@ -33,15 +34,13 @@ const LEVEL_OPTIONS = [
 ] as const;
 
 export function Step7Languages() {
-  const { sessionId, stepData, nextStep } = useWizard();
-  const saved = stepData[7] as Partial<Step7Data> | undefined;
-
-  const form = useForm<Step7Data>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    resolver: zodResolver(step7Schema) as any,
-    defaultValues: saved ?? { languages: [] },
-    mode: "onChange",
-  });
+  const { nextStep } = useWizard();
+  const { form, sessionId } = useWizardStepForm<Step7Data>(
+    7,
+    { languages: [] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    zodResolver(step7Schema) as any,
+  );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,

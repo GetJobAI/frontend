@@ -1,6 +1,5 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 import {
@@ -9,6 +8,7 @@ import {
   step2Schema,
 } from "../lib/wizard-schemas";
 import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
+import { useWizardStepForm } from "../hooks/use-wizard-step-form";
 import { useWizard } from "./WizardContext";
 import { SectionHeader } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
@@ -24,15 +24,13 @@ import { Sparkles } from "lucide-react";
 type Step2Data = z.infer<typeof step2Schema>;
 
 export function Step2Summary() {
-  const { sessionId, stepData, nextStep } = useWizard();
-  const saved = stepData[2] as Partial<Step2Data> | undefined;
-
-  const form = useForm<Step2Data>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    resolver: zodResolver(step2Schema) as any,
-    defaultValues: saved ?? { summary: "" },
-    mode: "onChange",
-  });
+  const { nextStep } = useWizard();
+  const { form, sessionId } = useWizardStepForm<Step2Data>(
+    2,
+    { summary: "" },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    zodResolver(step2Schema) as any,
+  );
 
   const { saveNow } = useWizardAutoSave(sessionId, 2, form.watch);
 

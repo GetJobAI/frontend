@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFieldArray, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 import { step5Schema } from "../lib/wizard-schemas";
 import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
+import { useWizardStepForm } from "../hooks/use-wizard-step-form";
 import { useWizard } from "./WizardContext";
 import { SectionHeader, AddButton, RemoveButton, CardRow } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
@@ -15,14 +16,13 @@ import { Input } from "~/components/ui/input";
 type Step5Data = z.infer<typeof step5Schema>;
 
 export function Step5Skills() {
-  const { sessionId, stepData, nextStep } = useWizard();
-  const saved = stepData[5] as Partial<Step5Data> | undefined;
-
-  const form = useForm<Step5Data>({
-    resolver: zodResolver(step5Schema),
-    defaultValues: saved ?? { skills: [] },
-    mode: "onChange",
-  });
+  const { nextStep } = useWizard();
+  const { form, sessionId } = useWizardStepForm<Step5Data>(
+    5,
+    { skills: [] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    zodResolver(step5Schema) as any,
+  );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -99,7 +99,7 @@ function SkillItemsField({
   form,
   groupIdx,
 }: {
-  form: ReturnType<typeof useForm<Step5Data>>;
+  form: UseFormReturn<Step5Data>;
   groupIdx: number;
 }) {
   const { fields, append, remove } = useFieldArray({

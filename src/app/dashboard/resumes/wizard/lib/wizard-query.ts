@@ -30,3 +30,7 @@ export async function createWizardSession(): Promise<{
   }>("/wizard");
   return data;
 }
+
+export async function clearWizardSession(sessionId: string): Promise<void> {
+  await apiNext.delete(`/wizard/${sessionId}`);
+}

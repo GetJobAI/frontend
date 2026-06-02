@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 import { step4Schema } from "../lib/wizard-schemas";
 import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
+import { useWizardStepForm } from "../hooks/use-wizard-step-form";
 import { useWizard } from "./WizardContext";
 import { SectionHeader, AddButton, RemoveButton, CardRow } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
@@ -17,15 +18,13 @@ import { Checkbox } from "~/components/ui/checkbox";
 type Step4Data = z.infer<typeof step4Schema>;
 
 export function Step4Education() {
-  const { sessionId, stepData, nextStep } = useWizard();
-  const saved = stepData[4] as Partial<Step4Data> | undefined;
-
-  const form = useForm<Step4Data>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    resolver: zodResolver(step4Schema) as any,
-    defaultValues: saved ?? { education: [] },
-    mode: "onChange",
-  });
+  const { nextStep } = useWizard();
+  const { form, sessionId } = useWizardStepForm<Step4Data>(
+    4,
+    { education: [] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    zodResolver(step4Schema) as any,
+  );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,

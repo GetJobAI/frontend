@@ -1,10 +1,10 @@
 "use client";
 
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 import { step1Schema } from "../lib/wizard-schemas";
 import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
+import { useWizardStepForm } from "../hooks/use-wizard-step-form";
 import { useWizard } from "./WizardContext";
 import { SectionHeader } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
@@ -13,25 +13,25 @@ import { Input } from "~/components/ui/input";
 
 type Step1Data = z.infer<typeof step1Schema>;
 
-export function Step1PersonalInfo() {
-  const { sessionId, stepData, nextStep } = useWizard();
-  const saved = stepData[1] as Partial<Step1Data> | undefined;
+const EMPTY_STEP1: Step1Data = {
+  contact: {
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    linkedin: "",
+    github: "",
+  },
+};
 
-  const form = useForm<Step1Data>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    resolver: zodResolver(step1Schema) as any,
-    defaultValues: saved ?? {
-      contact: {
-        name: "",
-        email: "",
-        phone: "",
-        location: "",
-        linkedin: "",
-        github: "",
-      },
-    },
-    mode: "onChange",
-  });
+export function Step1PersonalInfo() {
+  const { nextStep } = useWizard();
+  const { form, sessionId } = useWizardStepForm<Step1Data>(
+    1,
+    EMPTY_STEP1,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    zodResolver(step1Schema) as any,
+  );
 
   const { saveNow } = useWizardAutoSave(sessionId, 1, form.watch);
 

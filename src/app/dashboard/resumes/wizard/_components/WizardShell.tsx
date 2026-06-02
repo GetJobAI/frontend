@@ -1,6 +1,7 @@
 "use client";
 
 import { WizardProvider, useWizard } from "./WizardContext";
+import { WizardClearSessionButton } from "./WizardClearSessionButton";
 import { WizardProgress } from "./WizardProgress";
 import { Step1PersonalInfo } from "./Step1PersonalInfo";
 import { Step2Summary } from "./Step2Summary";
@@ -15,7 +16,8 @@ import { STEP_META } from "../lib/wizard-schemas";
 import { WandSparkles } from "lucide-react";
 
 function WizardBody() {
-  const { currentStep, isLoading, loadError, retryBootstrap } = useWizard();
+  const { currentStep, formResetKey, isLoading, loadError, retryBootstrap } =
+    useWizard();
 
   if (isLoading) {
     return (
@@ -64,15 +66,46 @@ function WizardBody() {
       <div className="h-px bg-white/6" />
 
       <div className="min-h-[280px]">
-        {currentStep === 1 && <Step1PersonalInfo />}
-        {currentStep === 2 && <Step2Summary />}
-        {currentStep === 3 && <Step3Experience />}
-        {currentStep === 4 && <Step4Education />}
-        {currentStep === 5 && <Step5Skills />}
-        {currentStep === 6 && <Step6Certifications />}
-        {currentStep === 7 && <Step7Languages />}
-        {currentStep === 8 && <Step8Projects />}
-        {currentStep === 9 && <Step9Review />}
+        {currentStep === 1 && <Step1PersonalInfo key={formResetKey} />}
+        {currentStep === 2 && <Step2Summary key={formResetKey} />}
+        {currentStep === 3 && <Step3Experience key={formResetKey} />}
+        {currentStep === 4 && <Step4Education key={formResetKey} />}
+        {currentStep === 5 && <Step5Skills key={formResetKey} />}
+        {currentStep === 6 && <Step6Certifications key={formResetKey} />}
+        {currentStep === 7 && <Step7Languages key={formResetKey} />}
+        {currentStep === 8 && <Step8Projects key={formResetKey} />}
+        {currentStep === 9 && <Step9Review key={formResetKey} />}
+      </div>
+    </div>
+  );
+}
+
+function WizardChrome() {
+  const { isLoading, loadError } = useWizard();
+  const showClear = !isLoading && !loadError;
+
+  return (
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-16">
+      <div className="flex items-end justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-violet-600/15 text-violet-400">
+            <WandSparkles className="size-4" strokeWidth={1.7} />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-sm font-semibold text-white">Resume Wizard</h1>
+            <p className="text-[11px] text-neutral-600">
+              Progress auto-saves every 500 ms — pick up right where you left
+              off
+            </p>
+          </div>
+        </div>
+        {showClear ? <WizardClearSessionButton /> : null}
+      </div>
+
+      <div className="card-surface flex flex-col gap-0 overflow-hidden">
+        <div className="p-6 sm:p-8">
+          <WizardBody />
+        </div>
       </div>
     </div>
   );
@@ -81,26 +114,7 @@ function WizardBody() {
 export function WizardShell() {
   return (
     <WizardProvider>
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 pb-16">
-        <div className="flex items-center gap-3">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-violet-600/15 text-violet-400">
-            <WandSparkles className="size-4" strokeWidth={1.7} />
-          </span>
-          <div>
-            <h1 className="text-sm font-semibold text-white">Resume Wizard</h1>
-            <p className="text-[11px] text-neutral-600">
-              Progress auto-saves every 500 ms — pick up right where you left
-              off
-            </p>
-          </div>
-        </div>
-
-        <div className="card-surface flex flex-col gap-0 overflow-hidden">
-          <div className="p-6 sm:p-8">
-            <WizardBody />
-          </div>
-        </div>
-      </div>
+      <WizardChrome />
     </WizardProvider>
   );
 }

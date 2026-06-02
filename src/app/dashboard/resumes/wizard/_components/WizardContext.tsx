@@ -12,9 +12,12 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { isAxiosError } from "axios";
 import { apiNext } from "~/lib/api-next";
+import { wizardSuppressAutoSaveRef } from "../lib/wizard-auto-save-guard";
 import {
+  clearWizardSession,
   createWizardSession,
   fetchWizardSession,
+  type WizardSession,
   wizardKeys,
 } from "../lib/wizard-query";
 
@@ -38,6 +41,9 @@ interface WizardContextValue {
   prevStep: () => void;
   refreshSession: () => Promise<void>;
   retryBootstrap: () => void;
+  clearSession: () => Promise<void>;
+  formResetKey: number;
+  isClearing: boolean;
 }
 
 const WizardContext = createContext<WizardContextValue | null>(null);
@@ -57,6 +63,8 @@ export function WizardProvider({ children }: { children: ReactNode }) {
   const [furthestStep, setFurthestStep] = useState(1);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isBootstrapping, setIsBootstrapping] = useState(false);
+  const [formResetKey, setFormResetKey] = useState(0);
+  const [isClearing, setIsClearing] = useState(false);
 
   const bootstrapSession = useCallback(async () => {
     setIsBootstrapping(true);
@@ -201,6 +209,39 @@ export function WizardProvider({ children }: { children: ReactNode }) {
     void bootstrapSession();
   }, [sessionId, queryClient, bootstrapSession]);
 
+  const clearSession = useCallback(async () => {
+    if (!sessionId) return;
+    setIsClearing(true);
+    wizardSuppressAutoSaveRef.current = true;
+    try {
+      await clearWizardSession(sessionId);
+
+      const cleared: WizardSession = {
+        sessionId,
+        currentStep: 1,
+        stepData: {},
+        source: sessionQuery.data?.source,
+      };
+      queryClient.setQueryData(wizardKeys.session(sessionId), cleared);
+
+      setCurrentStep(1);
+      setFurthestStep(1);
+      setFormResetKey((k) => k + 1);
+      setLoadError(null);
+
+      await queryClient.invalidateQueries({
+        queryKey: wizardKeys.session(sessionId),
+      });
+    } catch (e) {
+      setLoadError(getErrorMessage(e));
+    } finally {
+      setIsClearing(false);
+      queueMicrotask(() => {
+        wizardSuppressAutoSaveRef.current = false;
+      });
+    }
+  }, [sessionId, queryClient, sessionQuery.data?.source]);
+
   const stepData = sessionQuery.data?.stepData ?? {};
   const isLoading =
     isBootstrapping ||
@@ -220,6 +261,9 @@ export function WizardProvider({ children }: { children: ReactNode }) {
         prevStep,
         refreshSession,
         retryBootstrap,
+        clearSession,
+        formResetKey,
+        isClearing,
       }}
     >
       {children}

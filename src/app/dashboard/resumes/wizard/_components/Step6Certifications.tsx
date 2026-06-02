@@ -1,10 +1,11 @@
 "use client";
 
-import { useForm, useFieldArray } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type z } from "zod";
 import { step6Schema } from "../lib/wizard-schemas";
 import { useWizardAutoSave } from "../hooks/use-wizard-auto-save";
+import { useWizardStepForm } from "../hooks/use-wizard-step-form";
 import { useWizard } from "./WizardContext";
 import { SectionHeader, AddButton, RemoveButton, CardRow } from "./WizardField";
 import { WizardNavButtons } from "./WizardNavButtons";
@@ -15,15 +16,13 @@ import { Input } from "~/components/ui/input";
 type Step6Data = z.infer<typeof step6Schema>;
 
 export function Step6Certifications() {
-  const { sessionId, stepData, nextStep } = useWizard();
-  const saved = stepData[6] as Partial<Step6Data> | undefined;
-
-  const form = useForm<Step6Data>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    resolver: zodResolver(step6Schema) as any,
-    defaultValues: saved ?? { certifications: [] },
-    mode: "onChange",
-  });
+  const { nextStep } = useWizard();
+  const { form, sessionId } = useWizardStepForm<Step6Data>(
+    6,
+    { certifications: [] },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    zodResolver(step6Schema) as any,
+  );
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,

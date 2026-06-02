@@ -10,6 +10,11 @@ import { UserBadge } from "~/app/dashboard/_components/UserBadge";
 import { ResumesCreatePaths } from "~/app/dashboard/resumes/_components/ResumesCreatePaths";
 import { ResumesList } from "~/app/dashboard/resumes/_components/ResumesList";
 import { ResumesListSkeleton } from "~/app/dashboard/resumes/_components/ResumesListSkeleton";
+import {
+  decryptStepData,
+  StepDataDecryptError,
+} from "~/app/dashboard/resumes/wizard/lib/crypto";
+import { hasWizardSessionProgress } from "~/app/dashboard/resumes/wizard/lib/wizard-session";
 import { db } from "~/server/db";
 import { wizardSessions } from "~/server/db/schema";
 
@@ -38,8 +43,18 @@ export default async function DashboardPage() {
       eq(wizardSessions.userId, userId),
       isNull(wizardSessions.completedAt),
     ),
-    columns: { id: true },
+    columns: { stepData: true },
   });
+
+  let hasUnfinishedWizardSession = false;
+  if (activeWizardSession) {
+    try {
+      const stepData = decryptStepData(activeWizardSession.stepData);
+      hasUnfinishedWizardSession = hasWizardSessionProgress(stepData);
+    } catch (e) {
+      if (!(e instanceof StepDataDecryptError)) throw e;
+    }
+  }
 
   return (
     <>
@@ -59,7 +74,7 @@ export default async function DashboardPage() {
 
         <section aria-label="Create a resume">
           <ResumesCreatePaths
-            hasUnfinishedWizardSession={!!activeWizardSession}
+            hasUnfinishedWizardSession={hasUnfinishedWizardSession}
           />
         </section>
 
