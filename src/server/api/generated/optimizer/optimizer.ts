@@ -18,7 +18,6 @@ import { optimizerMutator } from "../../optimizer-mutator";
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 /**
- * Accept or reject an AI-generated work experience suggestion. A rejection hint is stored and passed to the AI on the next rewrite.
  * @summary Review a work experience suggestion
  */
 export const postApiOptimisationsOptimisationIdWorkExperiencesSuggestionIdReview =
@@ -40,7 +39,6 @@ export const postApiOptimisationsOptimisationIdWorkExperiencesSuggestionIdReview
   };
 
 /**
- * Triggers an AI rewrite of the work experience entry. Replaces all existing bullets with the new output. An optional hint guides the AI.
  * @summary Rewrite a work experience suggestion
  */
 export const postApiOptimisationsOptimisationIdWorkExperiencesSuggestionIdRewrite =
@@ -64,7 +62,6 @@ export const postApiOptimisationsOptimisationIdWorkExperiencesSuggestionIdRewrit
   };
 
 /**
- * Accept or reject an individual AI-rewritten bullet point within a work experience suggestion.
  * @summary Review a bullet point
  */
 export const postApiOptimisationsOptimisationIdBulletsBulletIdReview = (
@@ -85,7 +82,6 @@ export const postApiOptimisationsOptimisationIdBulletsBulletIdReview = (
 };
 
 /**
- * Accept or reject an AI-generated activity suggestion. A rejection hint is stored and passed to the AI on the next rewrite.
  * @summary Review an activity suggestion
  */
 export const postApiOptimisationsOptimisationIdActivitiesSuggestionIdReview = (
@@ -106,7 +102,6 @@ export const postApiOptimisationsOptimisationIdActivitiesSuggestionIdReview = (
 };
 
 /**
- * Triggers an AI rewrite of the activity entry. An optional hint guides the AI.
  * @summary Rewrite an activity suggestion
  */
 export const postApiOptimisationsOptimisationIdActivitiesSuggestionIdRewrite = (
@@ -127,7 +122,6 @@ export const postApiOptimisationsOptimisationIdActivitiesSuggestionIdRewrite = (
 };
 
 /**
- * Generates or regenerates a cover letter using Gemini AI. Uses the session's accepted summary, skills, and top bullets automatically. If a cover letter already exists it is overwritten.
  * @summary Generate a cover letter
  */
 export const postApiOptimisationsOptimisationIdCoverLetterGenerate = (
@@ -147,7 +141,6 @@ export const postApiOptimisationsOptimisationIdCoverLetterGenerate = (
 };
 
 /**
- * Returns the saved cover letter for the optimisation session.
  * @summary Get the cover letter
  */
 export const getApiOptimisationsOptimisationIdCoverLetter = (

@@ -23,6 +23,7 @@ export function ResumeEditorClient({
   const [activeTab, setActiveTab] = useState<EditorTabId>(
     initialTab ?? "job-tailoring",
   );
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
   const [isSaving, startSave] = useTransition();
   const saveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestContentRef = useRef<ResumeContent>(initialContent);
@@ -81,11 +82,18 @@ export function ResumeEditorClient({
             content={content}
             onSave={handleSave}
             isSaving={isSaving}
+            onTabChange={setActiveTab}
+            onTemplatesOpenChange={setIsTemplatesOpen}
           />
         </div>
 
         <div className="card-surface flex min-h-[min(55vh,32rem)] shrink-0 flex-col overflow-hidden md:min-h-0">
-          <PdfPreview content={content} onStyleChange={handleStyleChange} />
+          <PdfPreview
+            content={content}
+            onStyleChange={handleStyleChange}
+            isTemplatesOpen={isTemplatesOpen}
+            onTemplatesOpenChange={setIsTemplatesOpen}
+          />
         </div>
       </div>
     </div>

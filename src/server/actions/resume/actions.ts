@@ -8,15 +8,41 @@ import {
   getResumes,
   patchResumes,
 } from "~/server/api/generated/resumes/resumes";
+import { WIZARD_SESSION_CONTENT_KEY } from "~/app/dashboard/resumes/wizard/lib/resume-constants";
 import type { Resumes } from "~/server/api/generated/schemas";
 import type { ResumeListItem } from "./types";
 
+type ResumeRow = Resumes & {
+  input_method?: string | null;
+  parse_status?: string | null;
+};
+
+function inferInputMethod(row: ResumeRow): string | null {
+  if (row.input_method) {
+    return row.input_method;
+  }
+
+  const content = row.content;
+  if (!content || typeof content !== "object" || Array.isArray(content)) {
+    return null;
+  }
+
+  const record = content as Record<string, unknown>;
+  if (typeof record[WIZARD_SESSION_CONTENT_KEY] === "string") {
+    return "wizard";
+  }
+
+  return "upload";
+}
+
 function mapRowToListItem(row: Resumes): ResumeListItem {
+  const extended = row as ResumeRow;
+
   return {
     id: row.id,
     content: row.content,
-    inputMethod: "wizard",
-    parseStatus: "completed",
+    inputMethod: inferInputMethod(extended),
+    parseStatus: extended.parse_status ?? null,
     createdAt: new Date(row.created_at),
     updatedAt: new Date(row.updated_at),
   };
