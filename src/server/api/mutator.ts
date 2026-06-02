@@ -89,6 +89,11 @@ export function createMutator(options: MutatorOptions) {
       delete (headers as Record<string, unknown>)["content-type"];
     }
 
+    const disableLogging = headers && (headers as Record<string, unknown>)["X-Disable-Logging"] === "true";
+    if (disableLogging && headers) {
+      delete (headers as Record<string, unknown>)["X-Disable-Logging"];
+    }
+
     const requestConfig: AxiosRequestConfig = {
       ...config,
       ...extraOptions,
@@ -99,21 +104,25 @@ export function createMutator(options: MutatorOptions) {
 
     try {
       const response = await instance(requestConfig);
-      await logApiRequestOutcome({
-        scope: options.logPrefix,
-        config: requestConfig,
-        mergedHeaders: response.config.headers,
-        startedAtMs,
-        response,
-      });
+      if (!disableLogging) {
+        await logApiRequestOutcome({
+          scope: options.logPrefix,
+          config: requestConfig,
+          mergedHeaders: response.config.headers,
+          startedAtMs,
+          response,
+        });
+      }
       return response.data as T;
     } catch (error) {
-      await logApiRequestOutcome({
-        scope: options.logPrefix,
-        config: requestConfig,
-        startedAtMs,
-        error,
-      });
+      if (!disableLogging) {
+        await logApiRequestOutcome({
+          scope: options.logPrefix,
+          config: requestConfig,
+          startedAtMs,
+          error,
+        });
+      }
       throw error;
     }
   };

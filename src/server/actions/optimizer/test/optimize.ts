@@ -13,10 +13,10 @@ import {
 } from "~/server/lib/request-log";
 import {
   extractLatestOptimization,
-  fetchLatestOptimizationForResume,
   runCoverLetterGenerate,
 } from "./cover-letter-shared";
-import { ARTIFICIAL_JOB_POSTING_CONTENT } from "./fixtures";
+import { getApiOptimisationsOptimisationIdCoverLetter } from "~/server/api/generated/optimizer/optimizer";
+import { parseJobPostingForTest } from "./parse-job";
 import {
   PIPELINE_POLL_TIMEOUT_MS,
   testHttpOptions,
@@ -27,11 +27,69 @@ import type { OptimizerFailureKind } from "./errors";
 const POLL_INITIAL_DELAY_MS = 500;
 const POLL_MAX_DELAY_MS = 1_500;
 
+interface OptimizeExperience {
+  company?: string;
+  title?: string;
+  dates?: string;
+  location?: string;
+  bullets?: string[];
+  hide?: boolean;
+}
+
+interface OptimizeSkillGroup {
+  category: string;
+  items: string[];
+}
+
+interface SuggestionExperience {
+  company_name?: string | null;
+  job_title?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  bullets?: string[] | null;
+  entry_id?: string | null;
+}
+
+interface SuggestionBullet {
+  id?: string;
+  original?: string;
+  rewritten?: string;
+  xyz_applied?: boolean;
+  keywords_added?: string[];
+}
+
+interface SuggestionWorkExperience {
+  id?: string;
+  reason?: string;
+  bullets?: SuggestionBullet[];
+  include?: boolean;
+  entry_id?: string;
+  rewrite_count?: number;
+}
+
+interface SuggestionSummaryObject {
+  original?: string;
+  rewritten?: string;
+  rewrite_count?: number;
+  keywords_incorporated?: string[];
+}
+
+interface SuggestionsJson {
+  resume_experiences?: SuggestionExperience[];
+  work_experiences?: SuggestionWorkExperience[];
+  resume_skills?: string[];
+  existing_summary?: string;
+  summary?: string | SuggestionSummaryObject;
+}
+
+
 export type TestOptimizerResult =
   | {
       ok: true;
       optimisationId: string;
       coverLetterPreview?: string;
+      coverLetterText?: string;
+      optimizedResumePayload?: Record<string, unknown> | null;
       logPath?: string | null;
     }
   | {
@@ -62,6 +120,7 @@ function extractJobPostingId(data: unknown): string | null {
 
 async function pollForOptimization(
   resumeId: string,
+  jobPostingId: string,
   addStep: (name: string, data?: unknown) => void,
 ): Promise<Optimizations | null> {
   const deadline = Date.now() + PIPELINE_POLL_TIMEOUT_MS;
@@ -73,20 +132,31 @@ async function pollForOptimization(
     const rows = await getOptimizations(
       {
         resume_id: `eq.${resumeId}`,
-        order: "created_at.desc",
+        job_posting_id: `eq.${jobPostingId}`,
         limit: "1",
       },
-      testHttpOptions,
+      {
+        ...testHttpOptions,
+        headers: {
+          "X-Disable-Logging": "true",
+        },
+      },
     );
     const row = extractLatestOptimization(rows);
+
+    let status: string | null = null;
+    if (row?.ai_suggestions && typeof row.ai_suggestions === "object") {
+      status = (row.ai_suggestions as Record<string, unknown>).status as string | null ?? null;
+    }
+
     addStep("poll.optimizations", {
       attempt,
       found: Boolean(row),
       optimizationId: row?.id ?? null,
-      jobPostingId: row?.job_posting_id ?? null,
-      atsScoreId: row?.ats_score_id ?? null,
+      status,
     });
-    if (row) {
+
+    if (row && (status === "completed" || status === "failed")) {
       return row;
     }
     await sleep(delayMs);
@@ -145,12 +215,14 @@ export async function testOptimizerAction(
     } else {
       addStep("resume.found", { resumeId: resume.id });
 
+      const parsedJobContent = await parseJobPostingForTest(addStep);
+
       const jobResponse = await postJobPostings(
         undefined,
         {
           data: {
             user_id: userId,
-            content: ARTIFICIAL_JOB_POSTING_CONTENT,
+            content: parsedJobContent,
           },
           headers: {
             Prefer: "return=representation",
@@ -172,27 +244,106 @@ export async function testOptimizerAction(
 
         await requestAtsScore(resumeId, jobPostingId, addStep);
 
-        let optimization = await fetchLatestOptimizationForResume(resumeId);
-        if (optimization) {
-          addStep("optimisation.already_present", {
-            optimizationId: optimization.id,
-          });
-        } else {
-          optimization = await pollForOptimization(resumeId, addStep);
-        }
+        const optimization = await pollForOptimization(resumeId, jobPostingId, addStep);
 
-        if (optimization) {
-          try {
-            const { coverLetterPreview } = await runCoverLetterGenerate(
-              optimization.id,
-              addStep,
-            );
+        if (!optimization) {
+          result = {
+            ok: false,
+            kind: "pipeline_timeout",
+            error: "Optimization pipeline timed out.",
+          };
+          addStep("optimisation.timeout", { resumeId, jobPostingId });
+        } else {
+          const suggestions = optimization.ai_suggestions as Record<string, unknown> | null | undefined;
+          if (suggestions?.status === "failed") {
+            const errMsg = (suggestions.error_message as string | undefined) ?? "Optimization pipeline failed on backend";
             result = {
-              ok: true,
-              optimisationId: optimization.id,
-              coverLetterPreview,
+              ok: false,
+              kind: "optimizer_api",
+              error: errMsg,
             };
-            addStep("action.success", result);
+            addStep("optimizer.failed_status", { error: errMsg });
+          } else {
+            try {
+              const { coverLetterPreview } = await runCoverLetterGenerate(
+                optimization.id,
+                addStep,
+              );
+
+              const savedCoverLetter = await getApiOptimisationsOptimisationIdCoverLetter(
+                optimization.id,
+                testHttpOptions,
+              ).catch(() => null);
+
+              let optimizedResumePayload: Record<string, unknown> | null = null;
+              if (optimization.ai_suggestions) {
+                const suggestionsJson = optimization.ai_suggestions as unknown as SuggestionsJson;
+                const originalContent = resume.content as Record<string, unknown> | null;
+                
+                const originalExperiences = (originalContent?.experience as OptimizeExperience[] | undefined) ?? [];
+                const optExperiences = originalExperiences.map((exp) => {
+                  const sugResumeExp = suggestionsJson.resume_experiences?.find(
+                    (sugExp) => (sugExp.company_name ?? "") === (exp.company ?? "") && (sugExp.job_title ?? "") === (exp.title ?? "")
+                  );
+                  
+                  let optBullets = exp.bullets;
+                  if (sugResumeExp?.entry_id) {
+                    const sugWorkExp = suggestionsJson.work_experiences?.find(
+                      (workExp) => workExp.entry_id === sugResumeExp.entry_id
+                    );
+                    if (sugWorkExp?.bullets) {
+                      optBullets = sugWorkExp.bullets
+                        .map((b) => b.rewritten)
+                        .filter((b): b is string => typeof b === "string");
+                    }
+                  }
+
+                  return Object.assign({}, exp, {
+                    bullets: optBullets,
+                  });
+                });
+
+                const optSkills = suggestionsJson.resume_skills ? [
+                  {
+                    category: "Skills",
+                    items: suggestionsJson.resume_skills
+                  }
+                ] : (originalContent?.skills as OptimizeSkillGroup[] | undefined);
+
+                let optSummary = originalContent?.summary;
+                const sugSummary = suggestionsJson.summary;
+                if (sugSummary) {
+                  if (typeof sugSummary === "object") {
+                    optSummary = sugSummary.rewritten ?? originalContent?.summary;
+                  } else if (typeof sugSummary === "string") {
+                    optSummary = sugSummary;
+                  }
+                }
+
+                optimizedResumePayload = Object.assign({}, originalContent, {
+                  summary: optSummary,
+                  experience: optExperiences,
+                  skills: optSkills
+                });
+
+                addStep("optimizer.payload_comparison", {
+                  original: originalContent,
+                  optimized: optimizedResumePayload,
+                });
+              }
+
+              result = {
+                ok: true,
+                optimisationId: optimization.id,
+                coverLetterPreview,
+                coverLetterText: savedCoverLetter?.coverLetter,
+                optimizedResumePayload,
+              };
+              addStep("action.success", {
+                ok: true,
+                optimisationId: optimization.id,
+                coverLetterPreview,
+              });
           } catch (error) {
             const classified = classifyRequestError(error);
             result = {
@@ -205,16 +356,10 @@ export async function testOptimizerAction(
               axios: serializeAxiosError(error),
             });
           }
-        } else {
-          result = {
-            ok: false,
-            kind: "pipeline_timeout",
-            error: `No optimization row within ${PIPELINE_POLL_TIMEOUT_MS / 1000}s after requesting ATS score.`,
-          };
-          addStep("poll.timeout", result);
         }
       }
     }
+  }
   } catch (e) {
     const classified = classifyRequestError(e);
     console.error("[testOptimizerAction]", e);

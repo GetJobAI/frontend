@@ -97,6 +97,44 @@ export function FinishTab({ content, resumeId }: FinishTabProps) {
     startOptimize(async () => {
       const result = await testOptimizerAction(resumeId);
       setTestStatus(formatOptimizerResult(result));
+
+      if (result.ok) {
+        if (result.optimizedResumePayload) {
+          try {
+            const payload = buildPdfPayload(result.optimizedResumePayload);
+            const res = await fetch("/api/pdf-preview", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = "optimized-resume.pdf";
+              a.click();
+              URL.revokeObjectURL(url);
+            }
+          } catch (e) {
+            console.error("Failed to generate and download optimized PDF:", e);
+          }
+        }
+
+        if (result.coverLetterText) {
+          try {
+            const blob = new Blob([result.coverLetterText], { type: "text/plain;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "cover-letter.txt";
+            a.click();
+            URL.revokeObjectURL(url);
+          } catch (e) {
+            console.error("Failed to download cover letter:", e);
+          }
+        }
+      }
     });
   };
 
@@ -105,6 +143,20 @@ export function FinishTab({ content, resumeId }: FinishTabProps) {
     startCoverLetter(async () => {
       const result = await testCoverLetterAction(resumeId);
       setTestStatus(formatCoverLetterResult(result));
+
+      if (result.ok && result.outcome === "cover_letter_generated" && result.coverLetterText) {
+        try {
+          const blob = new Blob([result.coverLetterText], { type: "text/plain;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "cover-letter.txt";
+          a.click();
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.error("Failed to download cover letter:", e);
+        }
+      }
     });
   };
 
@@ -173,7 +225,7 @@ export function FinishTab({ content, resumeId }: FinishTabProps) {
               : isTestPending
           }
           onClick={"onClick" in item ? item.onClick : undefined}
-          className="flex w-full items-center justify-between rounded-xl border border-white/6 bg-white/2 px-4 py-3.5 text-left transition-all hover:border-white/12 hover:bg-white/4 disabled:opacity-50"
+          className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-white/6 bg-white/2 px-4 py-3.5 text-left transition-all hover:border-white/12 hover:bg-white/4 disabled:cursor-default disabled:opacity-50 disabled:hover:border-white/6 disabled:hover:bg-white/2"
         >
           <div className="flex items-center gap-3">
             <span className="flex size-8 items-center justify-center rounded-lg bg-white/5 text-neutral-400">

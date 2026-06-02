@@ -5,6 +5,7 @@ export type OptimizerFailureKind =
   | "no_optimisation_in_db"
   | "pipeline_timeout"
   | "auth"
+  | "parser_api"
   | "optimizer_api"
   | "core_api"
   | "unknown";
@@ -62,11 +63,20 @@ export function classifyRequestError(error: unknown): {
 
   const url = error.config?.url ?? "";
   const isOptimizer = url.includes("/optimisations");
-  const isCore = !isOptimizer && url.length > 0;
+  const isParser =
+    url.includes("/parser/") || url.includes("/job-postings/parse");
+  const isCore =
+    !isOptimizer && !isParser && url.length > 0;
 
   if (status !== undefined && status >= 400) {
     return {
-      kind: isOptimizer ? "optimizer_api" : isCore ? "core_api" : "unknown",
+      kind: isOptimizer
+        ? "optimizer_api"
+        : isParser
+          ? "parser_api"
+          : isCore
+            ? "core_api"
+            : "unknown",
       status,
       message: detail ?? error.message,
     };

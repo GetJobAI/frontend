@@ -10,6 +10,8 @@ import {
   fetchLatestOptimizationForResume,
   runCoverLetterGenerate,
 } from "./cover-letter-shared";
+import { getApiOptimisationsOptimisationIdCoverLetter } from "~/server/api/generated/optimizer/optimizer";
+import { testHttpOptions } from "./constants";
 import { classifyRequestError } from "./errors";
 import type { OptimizerFailureKind } from "./errors";
 
@@ -19,6 +21,7 @@ export type TestCoverLetterResult =
       outcome: "cover_letter_generated";
       optimisationId: string;
       coverLetterPreview: string;
+      coverLetterText?: string;
       logPath?: string | null;
     }
   | {
@@ -80,13 +83,24 @@ export async function testCoverLetterAction(
             optimization.id,
             addStep,
           );
+          const savedCoverLetter = await getApiOptimisationsOptimisationIdCoverLetter(
+            optimization.id,
+            testHttpOptions,
+          ).catch(() => null);
+
           result = {
             ok: true,
             outcome: "cover_letter_generated",
             optimisationId: optimization.id,
             coverLetterPreview,
+            coverLetterText: savedCoverLetter?.coverLetter,
           };
-          addStep("action.success", result);
+          addStep("action.success", {
+            ok: true,
+            outcome: "cover_letter_generated",
+            optimisationId: optimization.id,
+            coverLetterPreview,
+          });
         } catch (error) {
           const classified = classifyRequestError(error);
           result = {
