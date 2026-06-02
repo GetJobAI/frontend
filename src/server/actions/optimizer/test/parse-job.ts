@@ -3,7 +3,6 @@ import type { JobPostingContent } from "~/server/api/generated/parser/schemas";
 import { serializeAxiosError } from "~/server/lib/request-log";
 
 import { testHttpOptions } from "./constants";
-import { ARTIFICIAL_JOB_POSTING_RAW_TEXT } from "./fixtures";
 
 function isFailedParseStatus(status: string): boolean {
   const normalized = status.trim().toLowerCase();
@@ -16,17 +15,18 @@ function hasMinimalJobContent(content: JobPostingContent): boolean {
   return Boolean(title ?? company);
 }
 
-/** Calls the parser service with fixture plain text; returns structured job content for core API. */
+/** Calls the parser service with the provided job description plain text; returns structured job content for core API. */
 export async function parseJobPostingForTest(
+  jobDescription: string,
   addStep: (name: string, data?: unknown) => void,
 ): Promise<JobPostingContent> {
   addStep("parser.job.request", {
-    textLength: ARTIFICIAL_JOB_POSTING_RAW_TEXT.length,
+    textLength: jobDescription.length,
   });
 
   try {
     const response = await parseJobPostingJobPostingsParsePost(
-      { text: ARTIFICIAL_JOB_POSTING_RAW_TEXT },
+      { text: jobDescription },
       testHttpOptions,
     );
 

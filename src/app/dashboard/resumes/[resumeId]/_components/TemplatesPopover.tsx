@@ -20,13 +20,19 @@ const TEMPLATES: Array<{ value: StyleValue; label: string }> = [
 interface TemplatesPopoverProps {
   content: ResumeContent;
   onStyleChange: (style: StyleValue) => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function TemplatesPopover({
   content,
   onStyleChange,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: TemplatesPopoverProps) {
-  const [open, setOpen] = useState(false);
+  const [localOpen, setLocalOpen] = useState(false);
+  const open = controlledOpen ?? localOpen;
+  const setOpen = controlledOnOpenChange ?? setLocalOpen;
   const current = content.style ?? "professional";
 
   return (

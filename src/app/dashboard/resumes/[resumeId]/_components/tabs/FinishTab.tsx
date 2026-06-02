@@ -1,22 +1,22 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Download, Sparkles, FileText, Target, ArrowRight } from "lucide-react";
+import { Download, FileText, Target, ArrowRight, Layers, Sliders } from "lucide-react";
 
 import {
   testCoverLetterAction,
   type TestCoverLetterResult,
 } from "~/server/actions/optimizer/test/cover-letter";
-import {
-  testOptimizerAction,
-  type TestOptimizerResult,
-} from "~/server/actions/optimizer/test/optimize";
 import type { ResumeContent } from "../resume-content-types";
 import { buildPdfPayload } from "../resume-content-types";
+import type { EditorTabId } from "../editor-tabs";
+import { cn } from "~/lib/utils";
 
 interface FinishTabProps {
   content: ResumeContent;
   resumeId: string;
+  onTabChange?: (tab: EditorTabId) => void;
+  onBrowseTemplates?: () => void;
 }
 
 function appendLogPath(parts: string[], logPath?: string | null): string {
@@ -24,17 +24,6 @@ function appendLogPath(parts: string[], logPath?: string | null): string {
     parts.push(`Log: ${logPath}`);
   }
   return parts.join("\n\n");
-}
-
-function formatOptimizerResult(result: TestOptimizerResult): string {
-  if (result.ok) {
-    const parts = [`OK: optimisation ${result.optimisationId}`];
-    if (result.coverLetterPreview) {
-      parts.push(result.coverLetterPreview);
-    }
-    return appendLogPath(parts, result.logPath);
-  }
-  return appendLogPath([`[${result.kind}] ${result.error}`], result.logPath);
 }
 
 function formatCoverLetterResult(result: TestCoverLetterResult): string {
@@ -56,13 +45,16 @@ function formatCoverLetterResult(result: TestCoverLetterResult): string {
   return appendLogPath([`[${result.kind}] ${result.error}`], result.logPath);
 }
 
-export function FinishTab({ content, resumeId }: FinishTabProps) {
+export function FinishTab({
+  content,
+  resumeId,
+  onTabChange,
+  onBrowseTemplates,
+}: FinishTabProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [testStatus, setTestStatus] = useState<string | null>(null);
-  const [isOptimizePending, startOptimize] = useTransition();
   const [isCoverLetterPending, startCoverLetter] = useTransition();
-  const isTestPending = isOptimizePending || isCoverLetterPending;
 
   const handleDownload = async () => {
     setIsDownloading(true);
@@ -92,52 +84,7 @@ export function FinishTab({ content, resumeId }: FinishTabProps) {
     }
   };
 
-  const handleOptimizeTest = () => {
-    setTestStatus(null);
-    startOptimize(async () => {
-      const result = await testOptimizerAction(resumeId);
-      setTestStatus(formatOptimizerResult(result));
-
-      if (result.ok) {
-        if (result.optimizedResumePayload) {
-          try {
-            const payload = buildPdfPayload(result.optimizedResumePayload);
-            const res = await fetch("/api/pdf-preview", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload),
-            });
-            if (res.ok) {
-              const blob = await res.blob();
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "optimized-resume.pdf";
-              a.click();
-              URL.revokeObjectURL(url);
-            }
-          } catch (e) {
-            console.error("Failed to generate and download optimized PDF:", e);
-          }
-        }
-
-        if (result.coverLetterText) {
-          try {
-            const blob = new Blob([result.coverLetterText], { type: "text/plain;charset=utf-8" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "cover-letter.txt";
-            a.click();
-            URL.revokeObjectURL(url);
-          } catch (e) {
-            console.error("Failed to download cover letter:", e);
-          }
-        }
-      }
-    });
-  };
-
+  // Dedicated cover letter generation and download (kept intact in code, but button is disabled in UI)
   const handleCoverLetterTest = () => {
     setTestStatus(null);
     startCoverLetter(async () => {
@@ -164,24 +111,38 @@ export function FinishTab({ content, resumeId }: FinishTabProps) {
     {
       icon: <Target className="size-4" />,
       label: "Tailor to a specific role",
-      description: isOptimizePending
-        ? "Running pipeline test (up to ~30s)…"
-        : "Optimise your resume for a target job",
-      onClick: handleOptimizeTest,
-      pending: isOptimizePending,
+      description: "Optimise your resume for a target job",
+      onClick: () => onTabChange?.("job-tailoring"),
+      disabled: false,
     },
     {
       icon: <FileText className="size-4" />,
-      label: "Write cover letter",
+      label: (
+        <span className="flex items-center gap-1.5 font-medium text-neutral-200">
+          Write cover letter
+          <span className="rounded-full border border-neutral-700 bg-neutral-800/50 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-400">
+            soon
+          </span>
+        </span>
+      ),
       description: "Generate a cover letter with this resume linked",
       onClick: handleCoverLetterTest,
+      disabled: true,
       pending: isCoverLetterPending,
     },
     {
-      icon: <Sparkles className="size-4" />,
-      label: "Refine with AI",
-      description: "Chat with an AI assistant to improve your resume",
-      disabled: true,
+      icon: <Layers className="size-4" />,
+      label: "Browse our templates",
+      description: "Choose a different design or layout template",
+      onClick: onBrowseTemplates,
+      disabled: false,
+    },
+    {
+      icon: <Sliders className="size-4" />,
+      label: "Adjust sections",
+      description: "Show or hide sections and customize PDF section headings",
+      onClick: () => onTabChange?.("sections"),
+      disabled: false,
     },
   ] as const;
 
@@ -215,26 +176,27 @@ export function FinishTab({ content, resumeId }: FinishTabProps) {
         Continue editing
       </p>
 
-      {actions.map((item) => (
+      {actions.map((item, idx) => (
         <button
-          key={item.label}
+          key={idx}
           type="button"
-          disabled={
-            "disabled" in item && item.disabled
-              ? true
-              : isTestPending
-          }
+          disabled={item.disabled}
           onClick={"onClick" in item ? item.onClick : undefined}
-          className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-white/6 bg-white/2 px-4 py-3.5 text-left transition-all hover:border-white/12 hover:bg-white/4 disabled:cursor-default disabled:opacity-50 disabled:hover:border-white/6 disabled:hover:bg-white/2"
+          className={cn(
+            "flex w-full items-center justify-between rounded-xl border px-4 py-3.5 text-left transition-all",
+            item.disabled
+              ? "cursor-default border-white/6 bg-white/2 opacity-50 pointer-events-none"
+              : "cursor-pointer border-white/6 bg-white/2 hover:border-white/12 hover:bg-white/4"
+          )}
         >
           <div className="flex items-center gap-3">
             <span className="flex size-8 items-center justify-center rounded-lg bg-white/5 text-neutral-400">
               {item.icon}
             </span>
             <div>
-              <p className="text-sm font-medium text-neutral-200">
+              <div className="text-sm font-medium text-neutral-200">
                 {item.label}
-              </p>
+              </div>
               <p className="text-xs text-neutral-500">
                 {"pending" in item && item.pending
                   ? "Running test…"

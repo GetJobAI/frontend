@@ -13,9 +13,7 @@ import {
 } from "~/server/lib/request-log";
 import {
   extractLatestOptimization,
-  runCoverLetterGenerate,
 } from "./cover-letter-shared";
-import { getApiOptimisationsOptimisationIdCoverLetter } from "~/server/api/generated/optimizer/optimizer";
 import { parseJobPostingForTest } from "./parse-job";
 import {
   PIPELINE_POLL_TIMEOUT_MS,
@@ -193,6 +191,7 @@ async function requestAtsScore(
 
 export async function testOptimizerAction(
   resumeId: string,
+  jobDescription: string,
 ): Promise<TestOptimizerResult> {
   const { addStep, finish } = createRequestLog("optimizer-test");
   let result: TestOptimizerResult = {
@@ -215,7 +214,7 @@ export async function testOptimizerAction(
     } else {
       addStep("resume.found", { resumeId: resume.id });
 
-      const parsedJobContent = await parseJobPostingForTest(addStep);
+      const parsedJobContent = await parseJobPostingForTest(jobDescription, addStep);
 
       const jobResponse = await postJobPostings(
         undefined,
@@ -265,16 +264,6 @@ export async function testOptimizerAction(
             addStep("optimizer.failed_status", { error: errMsg });
           } else {
             try {
-              const { coverLetterPreview } = await runCoverLetterGenerate(
-                optimization.id,
-                addStep,
-              );
-
-              const savedCoverLetter = await getApiOptimisationsOptimisationIdCoverLetter(
-                optimization.id,
-                testHttpOptions,
-              ).catch(() => null);
-
               let optimizedResumePayload: Record<string, unknown> | null = null;
               if (optimization.ai_suggestions) {
                 const suggestionsJson = optimization.ai_suggestions as unknown as SuggestionsJson;
@@ -335,27 +324,24 @@ export async function testOptimizerAction(
               result = {
                 ok: true,
                 optimisationId: optimization.id,
-                coverLetterPreview,
-                coverLetterText: savedCoverLetter?.coverLetter,
                 optimizedResumePayload,
               };
               addStep("action.success", {
                 ok: true,
                 optimisationId: optimization.id,
-                coverLetterPreview,
               });
-          } catch (error) {
-            const classified = classifyRequestError(error);
-            result = {
-              ok: false,
-              kind: classified.kind,
-              error: classified.message,
-            };
-            addStep("optimizer.cover_letter.error", {
-              ...classified,
-              axios: serializeAxiosError(error),
-            });
-          }
+            } catch (error) {
+              const classified = classifyRequestError(error);
+              result = {
+                ok: false,
+                kind: classified.kind,
+                error: classified.message,
+              };
+              addStep("optimizer.payload.error", {
+                ...classified,
+                axios: serializeAxiosError(error),
+              });
+            }
         }
       }
     }

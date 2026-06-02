@@ -20,6 +20,8 @@ interface EditorSidebarProps {
   content: ResumeContent;
   onSave: (patch: Partial<ResumeContent>) => void;
   isSaving: boolean;
+  onTabChange?: (tabId: EditorTabId) => void;
+  onTemplatesOpenChange?: (open: boolean) => void;
 }
 
 export function EditorSidebar({
@@ -28,6 +30,8 @@ export function EditorSidebar({
   content,
   onSave,
   isSaving,
+  onTabChange,
+  onTemplatesOpenChange,
 }: EditorSidebarProps) {
   const meta = EDITOR_TAB_META[activeTab];
 
@@ -52,7 +56,9 @@ export function EditorSidebar({
       </header>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
-        {activeTab === "job-tailoring" && <JobTailoringTab />}
+        {activeTab === "job-tailoring" && (
+          <JobTailoringTab resumeId={resumeId} />
+        )}
         {activeTab === "sections" && (
           <SectionsTab content={content} onSave={onSave} />
         )}
@@ -81,7 +87,12 @@ export function EditorSidebar({
           <ProjectsTab content={content} onSave={onSave} />
         )}
         {activeTab === "finish" && (
-          <FinishTab content={content} resumeId={resumeId} />
+          <FinishTab
+            content={content}
+            resumeId={resumeId}
+            onTabChange={onTabChange}
+            onBrowseTemplates={() => onTemplatesOpenChange?.(true)}
+          />
         )}
       </div>
     </div>

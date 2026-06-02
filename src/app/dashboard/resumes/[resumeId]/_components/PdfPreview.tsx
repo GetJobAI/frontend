@@ -10,9 +10,16 @@ import { TemplatesPopover } from "./TemplatesPopover";
 interface PdfPreviewProps {
   content: ResumeContent;
   onStyleChange: (style: "professional" | "technical" | "minimal") => void;
+  isTemplatesOpen?: boolean;
+  onTemplatesOpenChange?: (open: boolean) => void;
 }
 
-export function PdfPreview({ content, onStyleChange }: PdfPreviewProps) {
+export function PdfPreview({
+  content,
+  onStyleChange,
+  isTemplatesOpen,
+  onTemplatesOpenChange,
+}: PdfPreviewProps) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [isCompiling, setIsCompiling] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -110,7 +117,12 @@ export function PdfPreview({ content, onStyleChange }: PdfPreviewProps) {
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/8 px-3 py-2">
         <div className="flex items-center gap-2">
-          <TemplatesPopover content={content} onStyleChange={onStyleChange} />
+          <TemplatesPopover
+            content={content}
+            onStyleChange={onStyleChange}
+            open={isTemplatesOpen}
+            onOpenChange={onTemplatesOpenChange}
+          />
           <button
             type="button"
             onClick={() => void handleDownload()}
