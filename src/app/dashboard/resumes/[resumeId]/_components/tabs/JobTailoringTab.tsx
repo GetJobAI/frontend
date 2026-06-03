@@ -4,7 +4,6 @@ import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Loader2, Trash2 } from "lucide-react";
 import { testOptimizerAction } from "~/server/actions/optimizer/test/optimize";
-import { ARTIFICIAL_JOB_POSTING_RAW_TEXT } from "~/server/actions/optimizer/test/fixtures";
 import {
   listOptimizationsAction,
   deleteOptimizationAction,
@@ -52,9 +51,7 @@ function formatUpdatedTime(date: Date): string {
 
 export function JobTailoringTab({ resumeId }: JobTailoringTabProps) {
   const router = useRouter();
-  const [jobDescription, setJobDescription] = useState(
-    ARTIFICIAL_JOB_POSTING_RAW_TEXT,
-  );
+  const [jobDescription, setJobDescription] = useState("");
   const [testStatus, setTestStatus] = useState<string | null>(null);
   const [isOptimizePending, startOptimize] = useTransition();
 

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, AlertCircle, Download, ZoomIn, ZoomOut } from "lucide-react";
 import { diffWords } from "diff";
 import { cn } from "~/lib/utils";
+import { PdfCanvasRenderer } from "~/components/PdfCanvasRenderer";
 import type {
   ResumeContent,
   ExperienceEntry,
@@ -262,7 +263,7 @@ export function TypstLivePreview({
   optimization,
   activeReviews,
 }: TypstLivePreviewProps) {
-  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [pdfData, setPdfData] = useState<Uint8Array | null>(null);
   const [isCompiling, setIsCompiling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scale, setScale] = useState(100);
@@ -270,7 +271,7 @@ export function TypstLivePreview({
 
   const typstCompilerRef = useRef<TypstCompiler | null>(null);
   const templateStrRef = useRef<string | null>(null);
-  const prevUrlRef = useRef<string | null>(null);
+  const lastPdfBytesRef = useRef<Uint8Array | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize compiler & fetch template
@@ -320,9 +321,8 @@ export function TypstLivePreview({
     }
     void initTypst();
 
-    return () => {
-      if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
-    };
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    return () => {};
   }, []);
 
   // Compile dynamically when changes happen
@@ -365,19 +365,13 @@ export function TypstLivePreview({
       // Concatenate base template rules and call #resume(dict)
       const fullContent = `${baseTemplate}\n\n#resume(${dictStr})`;
 
-      // Compile using browser-side WASM to PDF Uint8Array
       const pdfBytes = await $typst.pdf({
         mainContent: fullContent,
       });
 
-      const blob = new Blob([pdfBytes as unknown as BlobPart], {
-        type: "application/pdf",
-      });
-      const url = URL.createObjectURL(blob);
-
-      if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
-      prevUrlRef.current = url;
-      setBlobUrl(url);
+      const bytes = new Uint8Array(pdfBytes as unknown as ArrayBuffer);
+      lastPdfBytesRef.current = bytes;
+      setPdfData(bytes);
     } catch (e) {
       console.error("Compilation error:", e);
       setError("PDF compilation failed");
@@ -387,13 +381,19 @@ export function TypstLivePreview({
   }
 
   const handleDownload = () => {
-    if (!blobUrl) return;
+    const bytes = lastPdfBytesRef.current;
+    if (!bytes) return;
     setIsDownloading(true);
     try {
+      const blob = new Blob([bytes.buffer as ArrayBuffer], {
+        type: "application/pdf",
+      });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = blobUrl;
+      a.href = url;
       a.download = "optimized-resume.pdf";
       a.click();
+      URL.revokeObjectURL(url);
     } finally {
       setIsDownloading(false);
     }
@@ -406,7 +406,7 @@ export function TypstLivePreview({
           <button
             type="button"
             onClick={handleDownload}
-            disabled={isDownloading || isCompiling || !blobUrl}
+            disabled={isDownloading || isCompiling || !pdfData}
             title="Download PDF"
             className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/10 bg-white/4 px-3 py-1.5 text-xs font-medium text-neutral-300 transition-all hover:border-violet-500/30 hover:bg-violet-500/8 hover:text-violet-300 disabled:opacity-50"
           >
@@ -454,17 +454,17 @@ export function TypstLivePreview({
       )}
 
       <div className="relative flex-1 overflow-auto bg-neutral-950/80">
-        {!blobUrl && !error && (
+        {!pdfData && !error && (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-neutral-700">
             <div className="size-8 animate-spin rounded-full border-2 border-violet-500/20 border-t-violet-500/60" />
             <p className="text-xs">Initialising Wasm Compiler…</p>
           </div>
         )}
 
-        {blobUrl && (
+        {pdfData && (
           <div
             className={cn(
-              "flex min-h-full items-start justify-center p-4 transition-opacity",
+              "flex min-h-full items-start justify-center p-4 transition-opacity duration-200",
               isCompiling && "opacity-60",
             )}
           >
@@ -475,11 +475,9 @@ export function TypstLivePreview({
                 transformOrigin: "top center",
               }}
             >
-              <iframe
-                key={blobUrl}
-                src={blobUrl}
-                className="aspect-[1/1.414] w-full rounded bg-white shadow-2xl"
-                title="Resume PDF preview"
+              <PdfCanvasRenderer
+                pdfData={pdfData}
+                className="w-full rounded bg-white shadow-2xl"
               />
             </div>
           </div>

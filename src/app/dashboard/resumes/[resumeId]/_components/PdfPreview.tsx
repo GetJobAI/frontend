@@ -6,6 +6,7 @@ import { cn } from "~/lib/utils";
 import type { ResumeContent } from "./resume-content-types";
 import { buildPdfPayload } from "./resume-content-types";
 import { TemplatesPopover } from "./TemplatesPopover";
+import { PdfCanvasRenderer } from "~/components/PdfCanvasRenderer";
 
 interface PdfPreviewProps {
   content: ResumeContent;
@@ -20,12 +21,11 @@ export function PdfPreview({
   isTemplatesOpen,
   onTemplatesOpenChange,
 }: PdfPreviewProps) {
-  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [pdfData, setPdfData] = useState<Uint8Array | null>(null);
   const [isCompiling, setIsCompiling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scale, setScale] = useState(100);
   const [isDownloading, setIsDownloading] = useState(false);
-  const prevUrlRef = useRef<string | null>(null);
   const lastBlobRef = useRef<Blob | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -67,11 +67,8 @@ export function PdfPreview({
 
       const blob = await res.blob();
       lastBlobRef.current = blob;
-      const url = URL.createObjectURL(blob);
-
-      if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
-      prevUrlRef.current = url;
-      setBlobUrl(url);
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      setPdfData(bytes);
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
       setError("Failed to compile PDF");
@@ -82,7 +79,6 @@ export function PdfPreview({
 
   useEffect(() => {
     return () => {
-      if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
       abortRef.current?.abort();
     };
   }, []);
@@ -174,17 +170,17 @@ export function PdfPreview({
       )}
 
       <div className="relative flex-1 overflow-auto bg-neutral-950/50">
-        {!blobUrl && !error && !isCompiling && (
+        {!pdfData && !error && !isCompiling && (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-neutral-700">
             <div className="size-8 animate-spin rounded-full border-2 border-violet-500/20 border-t-violet-500/60" />
             <p className="text-xs">Generating preview…</p>
           </div>
         )}
 
-        {blobUrl && (
+        {pdfData && (
           <div
             className={cn(
-              "flex min-h-full items-start justify-center p-4 transition-opacity",
+              "flex min-h-full items-start justify-center p-4 transition-opacity duration-200",
               isCompiling && "opacity-60",
             )}
           >
@@ -195,11 +191,9 @@ export function PdfPreview({
                 transformOrigin: "top center",
               }}
             >
-              <iframe
-                key={blobUrl}
-                src={blobUrl}
-                className="aspect-[1/1.414] w-full rounded shadow-2xl"
-                title="Resume PDF preview"
+              <PdfCanvasRenderer
+                pdfData={pdfData}
+                className="w-full rounded shadow-2xl"
               />
             </div>
           </div>
