@@ -88,7 +88,7 @@ export function ResumesCreatePaths({
           return (
             <div
               key={path.href}
-              className="card-surface relative flex min-h-[132px] flex-col justify-between p-4 opacity-50 cursor-default select-none pointer-events-none"
+              className="card-surface pointer-events-none relative flex min-h-[132px] cursor-default flex-col justify-between p-4 opacity-50 select-none"
             >
               {cardContent}
             </div>

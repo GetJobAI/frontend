@@ -20,7 +20,7 @@ export function Step5Skills() {
   const { form, sessionId } = useWizardStepForm<Step5Data>(
     5,
     { skills: [] },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     zodResolver(step5Schema) as any,
   );
 

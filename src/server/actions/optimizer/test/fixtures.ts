@@ -49,7 +49,11 @@ export const ARTIFICIAL_JOB_POSTING_CONTENT: JobPostingContent = {
     "Kafka or similar message brokers",
     "CI/CD and production operations",
   ],
-  preferred_requirements: ["Kubernetes", "Prometheus", "Open source contributions"],
+  preferred_requirements: [
+    "Kubernetes",
+    "Prometheus",
+    "Open source contributions",
+  ],
   skills: ["Rust", "TypeScript", "PostgreSQL", "Kafka", "Docker", "Kubernetes"],
   raw_text: `Senior Backend Engineer — Acme GmbH (Berlin, hybrid)
 

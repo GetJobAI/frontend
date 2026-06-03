@@ -16,7 +16,9 @@ export function extractLatestOptimization(rows: unknown): Optimizations | null {
     return null;
   }
   const id = (first as Optimizations).id;
-  return typeof id === "string" && id.length > 0 ? (first as Optimizations) : null;
+  return typeof id === "string" && id.length > 0
+    ? (first as Optimizations)
+    : null;
 }
 
 export async function fetchLatestOptimizationForResume(
@@ -37,12 +39,11 @@ export async function runCoverLetterGenerate(
   optimisationId: string,
   addStep: (name: string, data?: unknown) => void,
 ): Promise<{ coverLetterPreview: string }> {
-  const generated =
-    await postApiOptimisationsOptimisationIdCoverLetterGenerate(
-      optimisationId,
-      {},
-      testHttpOptions,
-    );
+  const generated = await postApiOptimisationsOptimisationIdCoverLetterGenerate(
+    optimisationId,
+    {},
+    testHttpOptions,
+  );
   addStep("optimizer.cover_letter.generate", {
     wordCount: generated.wordCount,
     salutationUsed: generated.salutationUsed,

@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import {
-  useForm,
-  type DefaultValues,
-  type FieldValues,
-} from "react-hook-form";
+import { useForm, type DefaultValues, type FieldValues } from "react-hook-form";
 import { useWizard } from "../_components/WizardContext";
 
 export function useWizardStepForm<T extends FieldValues>(
@@ -28,8 +24,7 @@ export function useWizardStepForm<T extends FieldValues>(
   useEffect(() => {
     if (lastResetKey.current === formResetKey) return;
     lastResetKey.current = formResetKey;
-    const next =
-      (stepData[stepNum] as Partial<T> | undefined) ?? emptyValues;
+    const next = (stepData[stepNum] as Partial<T> | undefined) ?? emptyValues;
     form.reset(next as DefaultValues<T>);
   }, [formResetKey, stepData, stepNum, emptyValues, form]);
 

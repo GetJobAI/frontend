@@ -83,10 +83,11 @@ export async function testCoverLetterAction(
             optimization.id,
             addStep,
           );
-          const savedCoverLetter = await getApiOptimisationsOptimisationIdCoverLetter(
-            optimization.id,
-            testHttpOptions,
-          ).catch(() => null);
+          const savedCoverLetter =
+            await getApiOptimisationsOptimisationIdCoverLetter(
+              optimization.id,
+              testHttpOptions,
+            ).catch(() => null);
 
           result = {
             ok: true,

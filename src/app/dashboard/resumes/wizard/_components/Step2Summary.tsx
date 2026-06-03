@@ -28,7 +28,7 @@ export function Step2Summary() {
   const { form, sessionId } = useWizardStepForm<Step2Data>(
     2,
     { summary: "" },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     zodResolver(step2Schema) as any,
   );
 

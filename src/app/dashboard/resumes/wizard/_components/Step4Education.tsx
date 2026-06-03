@@ -22,7 +22,7 @@ export function Step4Education() {
   const { form, sessionId } = useWizardStepForm<Step4Data>(
     4,
     { education: [] },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     zodResolver(step4Schema) as any,
   );
 

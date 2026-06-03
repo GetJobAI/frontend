@@ -9,7 +9,8 @@ import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import { parseUploadedResumeAction } from "~/server/actions/resume/parse-upload";
 
-const ACCEPT = ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const ACCEPT =
+  ".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 type UploadPhase = "idle" | "parsing" | "error";
 
@@ -52,11 +53,10 @@ export function UploadResumeClient() {
       }
 
       if (result.partialParse || (result.warnings?.length ?? 0) > 0) {
-        const warningText = result.warnings?.join(" ") ?? "Some sections may be incomplete.";
+        const warningText =
+          result.warnings?.join(" ") ?? "Some sections may be incomplete.";
         setNotice(
-          result.partialParse
-            ? `Partial parse: ${warningText}`
-            : warningText,
+          result.partialParse ? `Partial parse: ${warningText}` : warningText,
         );
       }
 

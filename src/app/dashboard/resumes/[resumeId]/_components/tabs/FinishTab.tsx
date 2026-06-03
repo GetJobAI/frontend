@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Download, FileText, Target, ArrowRight, Layers, Sliders } from "lucide-react";
+import {
+  Download,
+  FileText,
+  Target,
+  ArrowRight,
+  Layers,
+  Sliders,
+} from "lucide-react";
 
 import {
   testCoverLetterAction,
@@ -28,10 +35,7 @@ function appendLogPath(parts: string[], logPath?: string | null): string {
 
 function formatCoverLetterResult(result: TestCoverLetterResult): string {
   if (result.ok && result.outcome === "no_optimisation_in_db") {
-    return appendLogPath(
-      [`OK (expected): ${result.message}`],
-      result.logPath,
-    );
+    return appendLogPath([`OK (expected): ${result.message}`], result.logPath);
   }
   if (result.ok) {
     return appendLogPath(
@@ -91,9 +95,15 @@ export function FinishTab({
       const result = await testCoverLetterAction(resumeId);
       setTestStatus(formatCoverLetterResult(result));
 
-      if (result.ok && result.outcome === "cover_letter_generated" && result.coverLetterText) {
+      if (
+        result.ok &&
+        result.outcome === "cover_letter_generated" &&
+        result.coverLetterText
+      ) {
         try {
-          const blob = new Blob([result.coverLetterText], { type: "text/plain;charset=utf-8" });
+          const blob = new Blob([result.coverLetterText], {
+            type: "text/plain;charset=utf-8",
+          });
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
@@ -185,8 +195,8 @@ export function FinishTab({
           className={cn(
             "flex w-full items-center justify-between rounded-xl border px-4 py-3.5 text-left transition-all",
             item.disabled
-              ? "cursor-default border-white/6 bg-white/2 opacity-50 pointer-events-none"
-              : "cursor-pointer border-white/6 bg-white/2 hover:border-white/12 hover:bg-white/4"
+              ? "pointer-events-none cursor-default border-white/6 bg-white/2 opacity-50"
+              : "cursor-pointer border-white/6 bg-white/2 hover:border-white/12 hover:bg-white/4",
           )}
         >
           <div className="flex items-center gap-3">
@@ -209,7 +219,7 @@ export function FinishTab({
       ))}
 
       {testStatus ? (
-        <pre className="whitespace-pre-wrap rounded-lg border border-white/8 bg-black/30 p-3 text-xs text-neutral-300">
+        <pre className="rounded-lg border border-white/8 bg-black/30 p-3 text-xs whitespace-pre-wrap text-neutral-300">
           {testStatus}
         </pre>
       ) : null}

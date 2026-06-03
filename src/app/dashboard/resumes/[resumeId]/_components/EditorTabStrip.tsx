@@ -48,16 +48,14 @@ export function EditorTabStrip({
   return (
     <div className="shrink-0 overflow-x-auto rounded-xl border border-white/10 bg-black [-webkit-overflow-scrolling:touch]">
       <div className="flex w-max min-w-full divide-x divide-white/10">
-        {/* Home Tab */}
         <Link
           href="/dashboard"
           title="Back to dashboard"
-          className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center bg-black text-neutral-500 hover:bg-white/8 hover:text-neutral-300 transition-all"
+          className="flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center bg-black text-neutral-500 transition-all hover:bg-white/8 hover:text-neutral-300"
         >
           <Home className="size-5" strokeWidth={1.8} />
         </Link>
 
-        {/* Editor Tabs */}
         {EDITOR_TABS.map((tab) => {
           const isActive = tab.id === activeTab;
           const Icon = TAB_ICONS[tab.id];
@@ -82,12 +80,15 @@ export function EditorTabStrip({
           );
         })}
 
-        {/* User Profile Tab */}
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center bg-black" title="User Profile">
+        <div
+          className="flex h-14 w-14 shrink-0 items-center justify-center bg-black"
+          title="User Profile"
+        >
           <UserButton
             appearance={{
               elements: {
-                avatarBox: "size-6 ring-1 ring-white/10 hover:ring-white/20 transition-all",
+                avatarBox:
+                  "size-6 ring-1 ring-white/10 hover:ring-white/20 transition-all",
               },
             }}
           />

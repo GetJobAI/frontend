@@ -65,8 +65,7 @@ export function classifyRequestError(error: unknown): {
   const isOptimizer = url.includes("/optimisations");
   const isParser =
     url.includes("/parser/") || url.includes("/job-postings/parse");
-  const isCore =
-    !isOptimizer && !isParser && url.length > 0;
+  const isCore = !isOptimizer && !isParser && url.length > 0;
 
   if (status !== undefined && status >= 400) {
     return {

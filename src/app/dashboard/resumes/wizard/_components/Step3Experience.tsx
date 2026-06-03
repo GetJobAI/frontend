@@ -22,7 +22,7 @@ export function Step3Experience() {
   const { form, sessionId } = useWizardStepForm<Step3Data>(
     3,
     { experience: [] },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     zodResolver(step3Schema) as any,
   );
 

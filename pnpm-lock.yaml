@@ -28,6 +28,15 @@ importers:
       "@hookform/resolvers":
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.75.0(react@19.2.5))
+      "@myriaddreamin/typst-ts-renderer":
+        specifier: ^0.7.0
+        version: 0.7.0
+      "@myriaddreamin/typst-ts-web-compiler":
+        specifier: ^0.7.0
+        version: 0.7.0
+      "@myriaddreamin/typst.ts":
+        specifier: ^0.7.0
+        version: 0.7.0(@myriaddreamin/typst-ts-renderer@0.7.0)(@myriaddreamin/typst-ts-web-compiler@0.7.0)
       "@t3-oss/env-nextjs":
         specifier: ^0.12.0
         version: 0.12.0(typescript@5.9.3)(zod@3.25.76)
@@ -58,6 +67,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      diff:
+        specifier: ^9.0.0
+        version: 9.0.0
       drizzle-orm:
         specifier: ^0.41.0
         version: 0.41.0(@neondatabase/serverless@1.1.0)(gel@2.2.0)(postgres@3.4.9)
@@ -113,6 +125,9 @@ importers:
       "@tailwindcss/postcss":
         specifier: ^4.0.15
         version: 4.2.3
+      "@types/diff":
+        specifier: ^8.0.0
+        version: 8.0.0
       "@types/node":
         specifier: ^20.14.10
         version: 20.19.39
@@ -1801,6 +1816,32 @@ packages:
         integrity: sha512-3B9EinUkrdOUGYzHRzRWSXunQ4YFGboJnyLNRwEJWEde+j8fNhPUHvrN1E3g1DU/iS/s8JQrMNVe+S7AHHVs0w==,
       }
     engines: { node: ">=18" }
+
+  "@myriaddreamin/typst-ts-renderer@0.7.0":
+    resolution:
+      {
+        integrity: sha512-3sXIGxZn9MufPrPn6251DeuLf2FIEILYNzY5lX0XOJmaIYqgvQ3qpfqkCjgQD+splBvt5R1N3BuuNFrZKsHhMw==,
+      }
+
+  "@myriaddreamin/typst-ts-web-compiler@0.7.0":
+    resolution:
+      {
+        integrity: sha512-nMwMcfOBy5pABPDuVM7/u8425SxhPUM+OJe6daqqgVOT3+neCTz4JKwx2L8XasfEHTNvd0cUI07LR9q5ADo7Gw==,
+      }
+
+  "@myriaddreamin/typst.ts@0.7.0":
+    resolution:
+      {
+        integrity: sha512-JtO5Td/1QesH1IBKAZtbayFNK8u2sl3iz18Y67uYqBEdcXiu3z+wpZcDDKlmVJvAcCgSjHTnuk6ZLfkYclrGGQ==,
+      }
+    peerDependencies:
+      "@myriaddreamin/typst-ts-renderer": ^0.7.0
+      "@myriaddreamin/typst-ts-web-compiler": ^0.7.0
+    peerDependenciesMeta:
+      "@myriaddreamin/typst-ts-renderer":
+        optional: true
+      "@myriaddreamin/typst-ts-web-compiler":
+        optional: true
 
   "@napi-rs/wasm-runtime@0.2.12":
     resolution:
@@ -3880,6 +3921,13 @@ packages:
         integrity: sha512-Ps3T8E8dZDam6fUyNiMkekK3XUsaUEik+idO9/YjPtfj2qruF8tFBXS7XhtE4iIXBLxhmLjP3SXpLhVf21I9Lw==,
       }
 
+  "@types/diff@8.0.0":
+    resolution:
+      {
+        integrity: sha512-o7jqJM04gfaYrdCecCVMbZhNdG6T1MHg/oQoRFdERLV+4d+V7FijhiEAbFu0Usww84Yijk9yH58U4Jk4HbtzZw==,
+      }
+    deprecated: This is a stub types definition. diff provides its own type definitions, so you do not need this installed.
+
   "@types/estree@1.0.8":
     resolution:
       {
@@ -5383,6 +5431,13 @@ packages:
       }
     engines: { node: ">=0.3.1" }
 
+  diff@9.0.0:
+    resolution:
+      {
+        integrity: sha512-svtcdpS8CgJyqAjEQIXdb3OjhFVVYjzGAPO8WGCmRbrml64SPw/jJD4GoE98aR7r25A0XcgrK3F02yw9R/vhQw==,
+      }
+    engines: { node: ">=0.3.1" }
+
   dijkstrajs@1.0.3:
     resolution:
       {
@@ -6570,6 +6625,12 @@ packages:
         integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==,
       }
     engines: { node: ">=0.10.0" }
+
+  idb@7.1.1:
+    resolution:
+      {
+        integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==,
+      }
 
   ieee754@1.2.1:
     resolution:
@@ -10956,6 +11017,17 @@ snapshots:
       outvariant: 1.4.3
       strict-event-emitter: 0.5.1
 
+  "@myriaddreamin/typst-ts-renderer@0.7.0": {}
+
+  "@myriaddreamin/typst-ts-web-compiler@0.7.0": {}
+
+  "@myriaddreamin/typst.ts@0.7.0(@myriaddreamin/typst-ts-renderer@0.7.0)(@myriaddreamin/typst-ts-web-compiler@0.7.0)":
+    dependencies:
+      idb: 7.1.1
+    optionalDependencies:
+      "@myriaddreamin/typst-ts-renderer": 0.7.0
+      "@myriaddreamin/typst-ts-web-compiler": 0.7.0
+
   "@napi-rs/wasm-runtime@0.2.12":
     dependencies:
       "@emnapi/core": 1.10.0
@@ -12577,6 +12649,10 @@ snapshots:
 
   "@types/d3-timer@3.0.2": {}
 
+  "@types/diff@8.0.0":
+    dependencies:
+      diff: 9.0.0
+
   "@types/estree@1.0.8": {}
 
   "@types/hast@3.0.4":
@@ -13381,6 +13457,8 @@ snapshots:
   detect-node-es@1.1.0: {}
 
   diff@8.0.4: {}
+
+  diff@9.0.0: {}
 
   dijkstrajs@1.0.3: {}
 
@@ -14272,6 +14350,8 @@ snapshots:
   iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
+
+  idb@7.1.1: {}
 
   ieee754@1.2.1: {}
 

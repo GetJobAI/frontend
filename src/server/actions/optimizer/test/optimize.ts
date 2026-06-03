@@ -3,7 +3,10 @@
 import { getUserId } from "~/lib/auth";
 import { coreMutator } from "~/server/api/core-mutator";
 import { postJobPostings } from "~/server/api/generated/job-postings/job-postings";
-import { getOptimizations } from "~/server/api/generated/optimizations/optimizations";
+import {
+  getOptimizations,
+  patchOptimizations,
+} from "~/server/api/generated/optimizations/optimizations";
 import type { JobPostings } from "~/server/api/generated/schemas";
 import type { Optimizations } from "~/server/api/generated/schemas/optimizations";
 import { getResumeAction } from "~/server/actions/resume/actions";
@@ -11,14 +14,9 @@ import {
   createRequestLog,
   serializeAxiosError,
 } from "~/server/lib/request-log";
-import {
-  extractLatestOptimization,
-} from "./cover-letter-shared";
+import { extractLatestOptimization } from "./cover-letter-shared";
 import { parseJobPostingForTest } from "./parse-job";
-import {
-  PIPELINE_POLL_TIMEOUT_MS,
-  testHttpOptions,
-} from "./constants";
+import { PIPELINE_POLL_TIMEOUT_MS, testHttpOptions } from "./constants";
 import { classifyRequestError } from "./errors";
 import type { OptimizerFailureKind } from "./errors";
 
@@ -54,6 +52,7 @@ interface SuggestionBullet {
   rewritten?: string;
   xyz_applied?: boolean;
   keywords_added?: string[];
+  accepted?: boolean | null;
 }
 
 interface SuggestionWorkExperience {
@@ -79,7 +78,6 @@ interface SuggestionsJson {
   existing_summary?: string;
   summary?: string | SuggestionSummaryObject;
 }
-
 
 export type TestOptimizerResult =
   | {
@@ -144,7 +142,10 @@ async function pollForOptimization(
 
     let status: string | null = null;
     if (row?.ai_suggestions && typeof row.ai_suggestions === "object") {
-      status = (row.ai_suggestions as Record<string, unknown>).status as string | null ?? null;
+      status =
+        ((row.ai_suggestions as Record<string, unknown>).status as
+          | string
+          | null) ?? null;
     }
 
     addStep("poll.optimizations", {
@@ -214,22 +215,22 @@ export async function testOptimizerAction(
     } else {
       addStep("resume.found", { resumeId: resume.id });
 
-      const parsedJobContent = await parseJobPostingForTest(jobDescription, addStep);
-
-      const jobResponse = await postJobPostings(
-        undefined,
-        {
-          data: {
-            user_id: userId,
-            content: parsedJobContent,
-          },
-          headers: {
-            Prefer: "return=representation",
-          },
-          validateStatus: (status) => status === 201 || status === 200,
-          ...testHttpOptions,
-        },
+      const parsedJobContent = await parseJobPostingForTest(
+        jobDescription,
+        addStep,
       );
+
+      const jobResponse = await postJobPostings(undefined, {
+        data: {
+          user_id: userId,
+          content: parsedJobContent,
+        },
+        headers: {
+          Prefer: "return=representation",
+        },
+        validateStatus: (status) => status === 201 || status === 200,
+        ...testHttpOptions,
+      });
       const jobPostingId = extractJobPostingId(jobResponse);
       if (!jobPostingId) {
         result = {
@@ -243,7 +244,11 @@ export async function testOptimizerAction(
 
         await requestAtsScore(resumeId, jobPostingId, addStep);
 
-        const optimization = await pollForOptimization(resumeId, jobPostingId, addStep);
+        const optimization = await pollForOptimization(
+          resumeId,
+          jobPostingId,
+          addStep,
+        );
 
         if (!optimization) {
           result = {
@@ -253,9 +258,14 @@ export async function testOptimizerAction(
           };
           addStep("optimisation.timeout", { resumeId, jobPostingId });
         } else {
-          const suggestions = optimization.ai_suggestions as Record<string, unknown> | null | undefined;
+          const suggestions = optimization.ai_suggestions as
+            | Record<string, unknown>
+            | null
+            | undefined;
           if (suggestions?.status === "failed") {
-            const errMsg = (suggestions.error_message as string | undefined) ?? "Optimization pipeline failed on backend";
+            const errMsg =
+              (suggestions.error_message as string | undefined) ??
+              "Optimization pipeline failed on backend";
             result = {
               ok: false,
               kind: "optimizer_api",
@@ -263,22 +273,64 @@ export async function testOptimizerAction(
             };
             addStep("optimizer.failed_status", { error: errMsg });
           } else {
+            if (optimization.ai_suggestions) {
+              const suggestionsJson =
+                optimization.ai_suggestions as unknown as SuggestionsJson;
+              let updated = false;
+              if (
+                suggestionsJson.work_experiences &&
+                Array.isArray(suggestionsJson.work_experiences)
+              ) {
+                for (const we of suggestionsJson.work_experiences) {
+                  if (we.bullets && Array.isArray(we.bullets)) {
+                    for (const bullet of we.bullets) {
+                      bullet.accepted = null;
+                      updated = true;
+                    }
+                  }
+                }
+              }
+              if (updated) {
+                await patchOptimizations(
+                  { id: `eq.${optimization.id}` },
+                  {
+                    data: { ai_suggestions: suggestionsJson },
+                    ...testHttpOptions,
+                  },
+                ).catch((err) => {
+                  console.error(
+                    "Failed to patch initial suggestions to null:",
+                    err,
+                  );
+                });
+              }
+            }
+
             try {
               let optimizedResumePayload: Record<string, unknown> | null = null;
               if (optimization.ai_suggestions) {
-                const suggestionsJson = optimization.ai_suggestions as unknown as SuggestionsJson;
-                const originalContent = resume.content as Record<string, unknown> | null;
-                
-                const originalExperiences = (originalContent?.experience as OptimizeExperience[] | undefined) ?? [];
+                const suggestionsJson =
+                  optimization.ai_suggestions as unknown as SuggestionsJson;
+                const originalContent = resume.content as Record<
+                  string,
+                  unknown
+                > | null;
+
+                const originalExperiences =
+                  (originalContent?.experience as
+                    | OptimizeExperience[]
+                    | undefined) ?? [];
                 const optExperiences = originalExperiences.map((exp) => {
                   const sugResumeExp = suggestionsJson.resume_experiences?.find(
-                    (sugExp) => (sugExp.company_name ?? "") === (exp.company ?? "") && (sugExp.job_title ?? "") === (exp.title ?? "")
+                    (sugExp) =>
+                      (sugExp.company_name ?? "") === (exp.company ?? "") &&
+                      (sugExp.job_title ?? "") === (exp.title ?? ""),
                   );
-                  
+
                   let optBullets = exp.bullets;
                   if (sugResumeExp?.entry_id) {
                     const sugWorkExp = suggestionsJson.work_experiences?.find(
-                      (workExp) => workExp.entry_id === sugResumeExp.entry_id
+                      (workExp) => workExp.entry_id === sugResumeExp.entry_id,
                     );
                     if (sugWorkExp?.bullets) {
                       optBullets = sugWorkExp.bullets
@@ -292,18 +344,23 @@ export async function testOptimizerAction(
                   });
                 });
 
-                const optSkills = suggestionsJson.resume_skills ? [
-                  {
-                    category: "Skills",
-                    items: suggestionsJson.resume_skills
-                  }
-                ] : (originalContent?.skills as OptimizeSkillGroup[] | undefined);
+                const optSkills = suggestionsJson.resume_skills
+                  ? [
+                      {
+                        category: "Skills",
+                        items: suggestionsJson.resume_skills,
+                      },
+                    ]
+                  : (originalContent?.skills as
+                      | OptimizeSkillGroup[]
+                      | undefined);
 
                 let optSummary = originalContent?.summary;
                 const sugSummary = suggestionsJson.summary;
                 if (sugSummary) {
                   if (typeof sugSummary === "object") {
-                    optSummary = sugSummary.rewritten ?? originalContent?.summary;
+                    optSummary =
+                      sugSummary.rewritten ?? originalContent?.summary;
                   } else if (typeof sugSummary === "string") {
                     optSummary = sugSummary;
                   }
@@ -312,7 +369,7 @@ export async function testOptimizerAction(
                 optimizedResumePayload = Object.assign({}, originalContent, {
                   summary: optSummary,
                   experience: optExperiences,
-                  skills: optSkills
+                  skills: optSkills,
                 });
 
                 addStep("optimizer.payload_comparison", {
@@ -342,10 +399,10 @@ export async function testOptimizerAction(
                 axios: serializeAxiosError(error),
               });
             }
+          }
         }
       }
     }
-  }
   } catch (e) {
     const classified = classifyRequestError(e);
     console.error("[testOptimizerAction]", e);

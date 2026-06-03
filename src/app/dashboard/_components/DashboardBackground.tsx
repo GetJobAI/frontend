@@ -32,10 +32,8 @@ export function DashboardBackground() {
           </pattern>
         </defs>
 
-        {/* Base Grid */}
         <rect width="100%" height="100%" fill="url(#bg-grid)" />
 
-        {/* Frame lines */}
         <line
           x1="40"
           y1="0"
@@ -63,12 +61,9 @@ export function DashboardBackground() {
           transform="translate(0, -40)"
         />
 
-        {/* TOP LEFT */}
         <svg x="0" y="0" className="overflow-visible">
-          {/* Solid angular block */}
           <polygon points="0,0 250,0 0,250" fill="rgba(255,255,255,0.015)" />
 
-          {/* Heavy Gray blocks */}
           <rect
             x="0"
             y="150"
@@ -84,14 +79,12 @@ export function DashboardBackground() {
             fill="rgba(255,255,255,0.04)"
           />
 
-          {/* Crosshair */}
           <path
             d="M 35 40 L 45 40 M 40 35 L 40 45"
             stroke="rgba(139,92,246,0.7)"
             strokeWidth="1.5"
           />
 
-          {/* Violet accent path */}
           <polyline
             points="0,150 20,150 40,170 40,250"
             fill="none"
@@ -106,20 +99,16 @@ export function DashboardBackground() {
             fill="rgba(139,92,246,0.7)"
           />
 
-          {/* Tech dot grid */}
           <rect x="60" y="60" width="90" height="90" fill="url(#dot-grid)" />
         </svg>
 
-        {/* BOTTOM LEFT */}
         <svg x="0" y="100%" className="overflow-visible">
-          {/* Crosshair */}
           <path
             d="M 35 -40 L 45 -40 M 40 -45 L 40 -35"
             stroke="rgba(139,92,246,0.7)"
             strokeWidth="1.5"
           />
 
-          {/* Data bars */}
           <rect
             x="40"
             y="-41"
@@ -138,7 +127,6 @@ export function DashboardBackground() {
           <rect x="60" y="-120" width="60" height="60" fill="url(#dot-grid)" />
         </svg>
 
-        {/* TOP RIGHT */}
         <svg x="100%" y="0" className="overflow-visible">
           <path
             d="M -45 40 L -35 40 M -40 35 L -40 45"
@@ -161,7 +149,6 @@ export function DashboardBackground() {
           />
         </svg>
 
-        {/* BOTTOM RIGHT */}
         <svg x="100%" y="100%" className="overflow-visible">
           <polygon points="0,0 -350,0 0,-350" fill="rgba(255,255,255,0.015)" />
 

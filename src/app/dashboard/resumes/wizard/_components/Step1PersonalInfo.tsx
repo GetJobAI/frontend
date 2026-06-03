@@ -29,7 +29,7 @@ export function Step1PersonalInfo() {
   const { form, sessionId } = useWizardStepForm<Step1Data>(
     1,
     EMPTY_STEP1,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     zodResolver(step1Schema) as any,
   );
 

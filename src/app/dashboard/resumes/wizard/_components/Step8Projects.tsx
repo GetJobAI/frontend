@@ -21,7 +21,7 @@ export function Step8Projects() {
   const { form, sessionId } = useWizardStepForm<Step8Data>(
     8,
     { projects: [] },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     zodResolver(step8Schema) as any,
   );
 

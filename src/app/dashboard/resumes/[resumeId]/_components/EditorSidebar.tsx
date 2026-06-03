@@ -14,6 +14,8 @@ import { SectionsTab } from "./tabs/SectionsTab";
 import { JobTailoringTab } from "./tabs/JobTailoringTab";
 import { FinishTab } from "./tabs/FinishTab";
 
+import { cn } from "~/lib/utils";
+
 interface EditorSidebarProps {
   resumeId: string;
   activeTab: EditorTabId;
@@ -55,7 +57,12 @@ export function EditorSidebar({
         </div>
       </header>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+      <div
+        className={cn(
+          "min-h-0 flex-1 px-5 py-4",
+          activeTab === "job-tailoring" ? "flex flex-col" : "overflow-y-auto",
+        )}
+      >
         {activeTab === "job-tailoring" && (
           <JobTailoringTab resumeId={resumeId} />
         )}

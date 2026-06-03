@@ -38,7 +38,7 @@ export function Step7Languages() {
   const { form, sessionId } = useWizardStepForm<Step7Data>(
     7,
     { languages: [] },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     zodResolver(step7Schema) as any,
   );
 

@@ -89,7 +89,9 @@ export function createMutator(options: MutatorOptions) {
       delete (headers as Record<string, unknown>)["content-type"];
     }
 
-    const disableLogging = headers && (headers as Record<string, unknown>)["X-Disable-Logging"] === "true";
+    const disableLogging =
+      headers &&
+      (headers as Record<string, unknown>)["X-Disable-Logging"] === "true";
     if (disableLogging && headers) {
       delete (headers as Record<string, unknown>)["X-Disable-Logging"];
     }
