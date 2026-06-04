@@ -13,7 +13,6 @@ import {
   Code,
   Loader2,
   Home,
-  RotateCcw,
   Mail,
 } from "lucide-react";
 import { AtsScoreMetric } from "./AtsScoreMetric";
@@ -364,14 +363,6 @@ export function OptimizePageClient({
             >
               <Mail className="size-3.5" />
               Cover Letter
-            </button>
-            <button
-              type="button"
-              onClick={handleResetAll}
-              className="flex cursor-pointer items-center gap-1 rounded-lg border border-white/8 bg-white/4 px-2.5 py-1.5 text-xs font-semibold text-neutral-400 transition-all hover:bg-white/8 hover:text-white"
-            >
-              <RotateCcw className="size-3.5" />
-              Reset All
             </button>
             <button
               type="button"
