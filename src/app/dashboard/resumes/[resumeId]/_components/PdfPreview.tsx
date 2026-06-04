@@ -133,10 +133,10 @@ export function PdfPreview({
             )}
             Download
           </button>
-          {isCompiling && (
+          {(isCompiling || (!pdfData && !error)) && (
             <span className="flex items-center gap-1 text-[11px] text-neutral-600">
               <Loader2 className="size-3 animate-spin" />
-              Compiling…
+              Compiling...
             </span>
           )}
         </div>
@@ -170,10 +170,93 @@ export function PdfPreview({
       )}
 
       <div className="relative flex-1 overflow-auto bg-neutral-950/50">
-        {!pdfData && !error && !isCompiling && (
-          <div className="flex h-full flex-col items-center justify-center gap-3 text-neutral-700">
-            <div className="size-8 animate-spin rounded-full border-2 border-violet-500/20 border-t-violet-500/60" />
-            <p className="text-xs">Generating preview…</p>
+        {!pdfData && !error && (
+          <div className="flex min-h-full items-start justify-center p-4">
+            <div
+              style={{
+                width: `${scale}%`,
+                maxWidth: "none",
+                transformOrigin: "top center",
+              }}
+              className="flex w-full justify-center"
+            >
+              <div className="flex aspect-[1/1.414] w-full animate-pulse flex-col gap-6 rounded bg-white p-12 shadow-2xl select-none">
+                {/* Header: Centered sender name & contact info skeleton */}
+                <div className="flex flex-col items-center gap-2.5">
+                  <div className="h-6 w-1/3 rounded bg-neutral-200" />
+                  <div className="h-3 w-1/2 rounded bg-neutral-100" />
+                </div>
+
+                {/* Summary Section */}
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="h-4 w-20 rounded bg-neutral-200" />
+                  <div className="h-[1px] w-full bg-neutral-200/60" />
+                  <div className="mt-2 flex flex-col gap-2.5">
+                    <div className="h-3 w-full rounded bg-neutral-100" />
+                    <div className="h-3 w-full rounded bg-neutral-100" />
+                    <div className="h-3 w-5/6 rounded bg-neutral-100" />
+                  </div>
+                </div>
+
+                {/* Experience Section */}
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="h-4 w-24 rounded bg-neutral-200" />
+                  <div className="h-[1px] w-full bg-neutral-200/60" />
+
+                  {/* Entry 1 */}
+                  <div className="mt-2 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 w-1/3 rounded bg-neutral-200" />
+                      <div className="h-3 w-20 rounded bg-neutral-100" />
+                    </div>
+                    <div className="h-3 w-1/4 rounded bg-neutral-100" />
+                    <div className="mt-1 flex flex-col gap-2 px-4">
+                      <div className="h-3 w-full rounded bg-neutral-100" />
+                      <div className="h-3 w-11/12 rounded bg-neutral-100" />
+                    </div>
+                  </div>
+
+                  {/* Entry 2 */}
+                  <div className="mt-3 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 w-1/4 rounded bg-neutral-200" />
+                      <div className="h-3 w-20 rounded bg-neutral-100" />
+                    </div>
+                    <div className="h-3 w-1/5 rounded bg-neutral-100" />
+                    <div className="mt-1 flex flex-col gap-2 px-4">
+                      <div className="h-3 w-11/12 rounded bg-neutral-100" />
+                      <div className="h-3 w-5/6 rounded bg-neutral-100" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Education Section */}
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="h-4 w-20 rounded bg-neutral-200" />
+                  <div className="h-[1px] w-full bg-neutral-200/60" />
+
+                  {/* Entry 1 */}
+                  <div className="mt-2 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <div className="h-3 w-1/3 rounded bg-neutral-200" />
+                      <div className="h-3 w-20 rounded bg-neutral-100" />
+                    </div>
+                    <div className="h-3 w-1/4 rounded bg-neutral-100" />
+                  </div>
+                </div>
+
+                {/* Skills Section */}
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="h-4 w-16 rounded bg-neutral-200" />
+                  <div className="h-[1px] w-full bg-neutral-200/60" />
+
+                  <div className="mt-2 flex flex-col gap-2">
+                    <div className="h-3 w-11/12 rounded bg-neutral-100" />
+                    <div className="h-3 w-3/4 rounded bg-neutral-100" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

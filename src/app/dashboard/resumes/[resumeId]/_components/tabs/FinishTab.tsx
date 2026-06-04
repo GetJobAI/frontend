@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Download,
   FileText,
@@ -8,16 +9,24 @@ import {
   ArrowRight,
   Layers,
   Sliders,
+  Loader2,
 } from "lucide-react";
 
-import {
-  testCoverLetterAction,
-  type TestCoverLetterResult,
-} from "~/server/actions/optimizer/test/cover-letter";
 import type { ResumeContent } from "../resume-content-types";
 import { buildPdfPayload } from "../resume-content-types";
 import type { EditorTabId } from "../editor-tabs";
 import { cn } from "~/lib/utils";
+import {
+  listOptimizationsAction,
+  type OptimizationListItem,
+} from "~/server/actions/optimizer/actions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 
 interface FinishTabProps {
   content: ResumeContent;
@@ -26,39 +35,37 @@ interface FinishTabProps {
   onBrowseTemplates?: () => void;
 }
 
-function appendLogPath(parts: string[], logPath?: string | null): string {
-  if (logPath) {
-    parts.push(`Log: ${logPath}`);
-  }
-  return parts.join("\n\n");
-}
-
-function formatCoverLetterResult(result: TestCoverLetterResult): string {
-  if (result.ok && result.outcome === "no_optimisation_in_db") {
-    return appendLogPath([`OK (expected): ${result.message}`], result.logPath);
-  }
-  if (result.ok) {
-    return appendLogPath(
-      [
-        `OK: cover letter for optimisation ${result.optimisationId}`,
-        result.coverLetterPreview,
-      ],
-      result.logPath,
-    );
-  }
-  return appendLogPath([`[${result.kind}] ${result.error}`], result.logPath);
-}
-
 export function FinishTab({
   content,
   resumeId,
   onTabChange,
   onBrowseTemplates,
 }: FinishTabProps) {
+  const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [optimizations, setOptimizations] = useState<OptimizationListItem[]>(
+    [],
+  );
+  const [isLoadingOpts, setIsLoadingOpts] = useState(false);
+
+  useEffect(() => {
+    if (isDialogOpen) {
+      setIsLoadingOpts(true);
+      listOptimizationsAction(resumeId)
+        .then((list) => {
+          setOptimizations(list);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch optimizations in FinishTab:", err);
+        })
+        .finally(() => {
+          setIsLoadingOpts(false);
+        });
+    }
+  }, [isDialogOpen, resumeId]);
+
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
-  const [testStatus, setTestStatus] = useState<string | null>(null);
-  const [isCoverLetterPending, startCoverLetter] = useTransition();
 
   const handleDownload = async () => {
     setIsDownloading(true);
@@ -88,35 +95,6 @@ export function FinishTab({
     }
   };
 
-  // Dedicated cover letter generation and download (kept intact in code, but button is disabled in UI)
-  const handleCoverLetterTest = () => {
-    setTestStatus(null);
-    startCoverLetter(async () => {
-      const result = await testCoverLetterAction(resumeId);
-      setTestStatus(formatCoverLetterResult(result));
-
-      if (
-        result.ok &&
-        result.outcome === "cover_letter_generated" &&
-        result.coverLetterText
-      ) {
-        try {
-          const blob = new Blob([result.coverLetterText], {
-            type: "text/plain;charset=utf-8",
-          });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "cover-letter.txt";
-          a.click();
-          URL.revokeObjectURL(url);
-        } catch (e) {
-          console.error("Failed to download cover letter:", e);
-        }
-      }
-    });
-  };
-
   const actions = [
     {
       icon: <Target className="size-4" />,
@@ -127,18 +105,11 @@ export function FinishTab({
     },
     {
       icon: <FileText className="size-4" />,
-      label: (
-        <span className="flex items-center gap-1.5 font-medium text-neutral-200">
-          Write cover letter
-          <span className="rounded-full border border-neutral-700 bg-neutral-800/50 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-400">
-            soon
-          </span>
-        </span>
-      ),
+      label: "Write cover letter",
       description: "Generate a cover letter with this resume linked",
-      onClick: handleCoverLetterTest,
-      disabled: true,
-      pending: isCoverLetterPending,
+      onClick: () => setIsDialogOpen(true),
+      disabled: false,
+      pending: false,
     },
     {
       icon: <Layers className="size-4" />,
@@ -218,11 +189,82 @@ export function FinishTab({
         </button>
       ))}
 
-      {testStatus ? (
-        <pre className="rounded-lg border border-white/8 bg-black/30 p-3 text-xs whitespace-pre-wrap text-neutral-300">
-          {testStatus}
-        </pre>
-      ) : null}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-md rounded-2xl border-white/10 bg-neutral-950 p-6 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-white">
+              Generate Cover Letter
+            </DialogTitle>
+            <DialogDescription className="mt-1 text-xs leading-relaxed text-neutral-400">
+              Cover letters are tailored to specific roles using your resume
+              optimization reports. Select a previous optimization run below to
+              continue, or optimize your resume for a new job.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="my-4 flex flex-col gap-3">
+            <h4 className="text-xs font-bold tracking-wider text-neutral-500 uppercase">
+              Select Optimization Run
+            </h4>
+
+            {isLoadingOpts ? (
+              <div className="flex items-center justify-center gap-2 py-8 text-xs text-neutral-500">
+                <Loader2 className="size-4 animate-spin text-violet-500" />
+                Loading optimizations...
+              </div>
+            ) : optimizations.length === 0 ? (
+              <div className="rounded-lg border border-white/6 bg-white/2 p-4 text-center text-xs text-neutral-500 italic">
+                No active optimization runs found.
+              </div>
+            ) : (
+              <div className="flex max-h-60 flex-col gap-2 overflow-y-auto pr-1">
+                {optimizations.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      setIsDialogOpen(false);
+                      router.push(
+                        `/dashboard/resumes/${resumeId}/cover-letter?optimisationId=${opt.id}`,
+                      );
+                    }}
+                    className="flex w-full cursor-pointer flex-col items-start gap-1 rounded-xl border border-white/6 bg-white/2 px-4 py-3 text-left transition-all hover:border-violet-500/30 hover:bg-white/4"
+                  >
+                    <span className="w-full truncate text-sm font-semibold text-white hover:text-violet-300">
+                      {opt.jobTitle}
+                    </span>
+                    <span className="text-[11px] text-neutral-500">
+                      {opt.companyName && opt.companyName !== "Unknown Company"
+                        ? `${opt.companyName} • `
+                        : ""}
+                      {new Date(opt.created_at).toLocaleDateString()}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="h-px bg-white/6" />
+
+          <div className="flex flex-col gap-2 pt-2">
+            <p className="text-xs text-neutral-400">
+              Want to target a new role?
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setIsDialogOpen(false);
+                onTabChange?.("job-tailoring");
+              }}
+              className="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-violet-500/30 bg-violet-600/10 px-4 py-2.5 text-xs font-semibold text-violet-300 transition-all hover:bg-violet-600/20"
+            >
+              <Target className="size-3.5" />
+              Optimize Resume for New Job
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

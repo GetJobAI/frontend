@@ -1,16 +1,14 @@
-import { promises as fs } from "node:fs";
-import path from "node:path";
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { RESUME_TEMPLATE } from "~/server/templates/resume-template";
+import { COVER_LETTER_TEMPLATE } from "~/server/templates/cover-letter-template";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const templatePath = path.join(
-      process.cwd(),
-      ".agents",
-      "resumes",
-      "template.typ",
-    );
-    const templateContent = await fs.readFile(templatePath, "utf-8");
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get("type") ?? "resume";
+
+    const templateContent =
+      type === "cover-letter" ? COVER_LETTER_TEMPLATE : RESUME_TEMPLATE;
     return NextResponse.json({ template: templateContent });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Failed to load template";

@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, Loader2, Trash2 } from "lucide-react";
+import { Sparkles, Loader2, Trash2, Mail } from "lucide-react";
 import { testOptimizerAction } from "~/server/actions/optimizer/test/optimize";
 import {
   listOptimizationsAction,
@@ -213,6 +213,19 @@ export function JobTailoringTab({ resumeId }: JobTailoringTabProps) {
                           : opt.originalScore}
                       </span>
                     )}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(
+                        `/dashboard/resumes/${resumeId}/cover-letter?optimisationId=${opt.id}`,
+                      );
+                    }}
+                    className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-white/8 bg-white/2 text-neutral-400 transition-all hover:border-violet-500/30 hover:bg-violet-500/10 hover:text-violet-300"
+                    title="Cover Letter"
+                  >
+                    <Mail className="size-3.5" />
+                  </button>
                   <button
                     type="button"
                     onClick={(e) => {

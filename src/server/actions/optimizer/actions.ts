@@ -3,8 +3,14 @@
 import {
   postApiOptimisationsOptimisationIdBulletsBulletIdReview,
   postApiOptimisationsOptimisationIdWorkExperiencesSuggestionIdRewrite,
+  getApiOptimisationsOptimisationIdCoverLetter,
+  postApiOptimisationsOptimisationIdCoverLetterGenerate,
 } from "~/server/api/generated/optimizer/optimizer";
-import type { WorkExperienceRewriteResponse } from "~/server/api/generated/optimizer/schemas";
+import type {
+  WorkExperienceRewriteResponse,
+  CoverLetterResponse,
+  GenerateCoverLetterRequest,
+} from "~/server/api/generated/optimizer/schemas";
 import {
   getOptimizations,
   deleteOptimizations,
@@ -336,5 +342,35 @@ export async function listOptimizationsAction(
   } catch (e) {
     console.error("Failed to list optimizations:", e);
     return [];
+  }
+}
+
+export async function getCoverLetterAction(
+  optimisationId: string,
+): Promise<CoverLetterResponse | null> {
+  try {
+    return await getApiOptimisationsOptimisationIdCoverLetter(
+      optimisationId,
+      testHttpOptions,
+    );
+  } catch (e) {
+    console.error("Failed to get cover letter:", e);
+    return null;
+  }
+}
+
+export async function generateCoverLetterAction(
+  optimisationId: string,
+  payload: GenerateCoverLetterRequest,
+): Promise<CoverLetterResponse> {
+  try {
+    return await postApiOptimisationsOptimisationIdCoverLetterGenerate(
+      optimisationId,
+      payload,
+      testHttpOptions,
+    );
+  } catch (e) {
+    console.error("Failed to generate cover letter:", e);
+    throw e;
   }
 }

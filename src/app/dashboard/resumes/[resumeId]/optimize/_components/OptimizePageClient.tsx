@@ -14,6 +14,7 @@ import {
   Loader2,
   Home,
   RotateCcw,
+  Mail,
 } from "lucide-react";
 import { AtsScoreMetric } from "./AtsScoreMetric";
 import { SuggestionCard } from "./SuggestionCard";
@@ -352,6 +353,18 @@ export function OptimizePageClient({
           </div>
 
           <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() =>
+                router.push(
+                  `/dashboard/resumes/${resumeId}/cover-letter?optimisationId=${optimization.id}`,
+                )
+              }
+              className="flex cursor-pointer items-center gap-1 rounded-lg border border-violet-500/25 bg-violet-500/10 px-2.5 py-1.5 text-xs font-semibold text-violet-400 transition-all hover:bg-violet-500/20 hover:text-violet-300"
+            >
+              <Mail className="size-3.5" />
+              Cover Letter
+            </button>
             <button
               type="button"
               onClick={handleResetAll}
