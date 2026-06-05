@@ -44,6 +44,11 @@ interface CoverLetterPageClientProps {
   jobPosting: JobPostings | null;
 }
 
+function escapeTypstString(val: string): string {
+  if (!val) return "";
+  return val.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
 function serializeCoverLetterToTypst(
   resumeContent: ResumeContent,
   jobPosting: JobPostings | null,
@@ -72,18 +77,18 @@ function serializeCoverLetterToTypst(
   return `(
     style: "${style}",
     sender: (
-      name: "${(contact.name ?? "").replace(/"/g, '\\"')}",
-      email: ${contact.email ? `"${contact.email.replace(/"/g, '\\"')}"` : "none"},
-      phone: ${contact.phone ? `"${contact.phone.replace(/"/g, '\\"')}"` : "none"},
-      location: ${contact.location ? `"${contact.location.replace(/"/g, '\\"')}"` : "none"},
+      name: "${escapeTypstString(contact.name ?? "")}",
+      email: ${contact.email ? `"${escapeTypstString(contact.email)}"` : "none"},
+      phone: ${contact.phone ? `"${escapeTypstString(contact.phone)}"` : "none"},
+      location: ${contact.location ? `"${escapeTypstString(contact.location)}"` : "none"},
     ),
     recipient: (
-      company: "${company.replace(/"/g, '\\"')}",
-      title: "${title.replace(/"/g, '\\"')}",
+      company: "${escapeTypstString(company)}",
+      title: "${escapeTypstString(title)}",
     ),
     date: "${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}",
-    subject: "Application for ${title.replace(/"/g, '\\"')}",
-    salutation: "${salutation.replace(/"/g, '\\"')}",
+    subject: "Application for ${escapeTypstString(title)}",
+    salutation: "${escapeTypstString(salutation)}",
     body: [${escapedBody}]
   )`;
 }
@@ -730,10 +735,60 @@ export function CoverLetterPageClient({
                 </div>
               </div>
             ) : (
-              <div className="mt-20 flex flex-col items-center justify-center gap-2 text-neutral-600">
-                <span className="text-xs italic">
-                  Generate a cover letter to view PDF
-                </span>
+              <div
+                style={{ width: `${scale}%` }}
+                className="flex w-full max-w-[850px] justify-center transition-all duration-100"
+              >
+                <div className="flex aspect-[1/1.414] w-full flex-col gap-6 rounded bg-white p-12 shadow-2xl select-none">
+                  {/* Header: Centered sender name & contact info skeleton */}
+                  <div className="flex flex-col items-center gap-2.5">
+                    <div className="h-6 w-1/3 rounded bg-neutral-300" />
+                    <div className="h-3 w-1/2 rounded bg-neutral-200" />
+                  </div>
+
+                  {/* Divider */}
+                  <div className="my-2 h-[1px] w-full bg-neutral-300/60" />
+
+                  {/* Recipient & Date */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex w-1/3 flex-col gap-2">
+                      <div className="h-3 w-1/4 rounded bg-neutral-300" />
+                      <div className="h-3 w-3/4 rounded bg-neutral-200" />
+                      <div className="h-3 w-1/2 rounded bg-neutral-200" />
+                    </div>
+                    <div className="h-3 w-1/4 rounded bg-neutral-200" />
+                  </div>
+
+                  {/* Subject */}
+                  <div className="mt-2 flex flex-col gap-2">
+                    <div className="h-3 w-1/2 rounded bg-neutral-300" />
+                  </div>
+
+                  {/* Body paragraphs */}
+                  <div className="mt-4 flex flex-col gap-3">
+                    <div className="h-3 w-full rounded bg-neutral-200" />
+                    <div className="h-3 w-full rounded bg-neutral-200" />
+                    <div className="h-3 w-full rounded bg-neutral-200" />
+                    <div className="h-3 w-5/6 rounded bg-neutral-200" />
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-3">
+                    <div className="h-3 w-full rounded bg-neutral-200" />
+                    <div className="h-3 w-full rounded bg-neutral-200" />
+                    <div className="h-3 w-4/5 rounded bg-neutral-200" />
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-3">
+                    <div className="h-3 w-full rounded bg-neutral-200" />
+                    <div className="h-3 w-5/6 rounded bg-neutral-200" />
+                  </div>
+
+                  {/* Sign-off */}
+                  <div className="mt-8 flex flex-col gap-2">
+                    <div className="h-3 w-1/6 rounded bg-neutral-200" />
+                    <div className="mt-2 h-4 w-1/4 rounded bg-neutral-300" />
+                  </div>
+                </div>
               </div>
             )
           ) : (

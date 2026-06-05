@@ -5,7 +5,7 @@
 
 Welcome to the **GetJob AI** API documentation.
 
- * OpenAPI spec version: 14.12
+ * OpenAPI spec version: 14.13
  */
 import type {
   DeleteSchemaMigrationsParams,

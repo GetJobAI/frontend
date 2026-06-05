@@ -14,6 +14,7 @@ import {
   Loader2,
   Home,
   Mail,
+  RotateCcw,
 } from "lucide-react";
 import { AtsScoreMetric } from "./AtsScoreMetric";
 import { SuggestionCard } from "./SuggestionCard";
@@ -22,6 +23,7 @@ import type { AiSuggestions } from "./TypstLivePreview";
 import type {
   ResumeContent,
   ExperienceEntry,
+  StyleValue,
 } from "~/app/dashboard/resumes/[resumeId]/_components/resume-content-types";
 import type { Optimizations } from "~/server/api/generated/schemas";
 import {
@@ -44,6 +46,10 @@ export function OptimizePageClient({
 }: OptimizePageClientProps) {
   const router = useRouter();
   const [isSaving, startSave] = useTransition();
+
+  const [resumeStyle, setResumeStyle] = useState<StyleValue>(
+    initialResumeContent.style ?? "professional",
+  );
 
   // Load the suggestions and metadata from the optimization payload
   const suggestions =
@@ -191,6 +197,9 @@ export function OptimizePageClient({
     startSave(async () => {
       try {
         const finalContent = { ...initialResumeContent };
+
+        // Apply style
+        finalContent.style = resumeStyle;
 
         // 1. Apply summary
         if (summaryReview === true && localSuggestions.summary) {
@@ -354,15 +363,11 @@ export function OptimizePageClient({
           <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() =>
-                router.push(
-                  `/dashboard/resumes/${resumeId}/cover-letter?optimisationId=${optimization.id}`,
-                )
-              }
-              className="flex cursor-pointer items-center gap-1 rounded-lg border border-violet-500/25 bg-violet-500/10 px-2.5 py-1.5 text-xs font-semibold text-violet-400 transition-all hover:bg-violet-500/20 hover:text-violet-300"
+              onClick={handleResetAll}
+              className="flex cursor-pointer items-center gap-1 rounded-lg border border-neutral-500/25 bg-neutral-500/10 px-2.5 py-1.5 text-xs font-semibold text-neutral-400 transition-all hover:bg-neutral-500/20"
             >
-              <Mail className="size-3.5" />
-              Cover Letter
+              <RotateCcw className="size-3.5" />
+              Reset All
             </button>
             <button
               type="button"
@@ -541,10 +546,15 @@ export function OptimizePageClient({
         <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-white/6 bg-neutral-900/40 px-5 py-4">
           <button
             type="button"
-            onClick={handleResetAll}
-            className="cursor-pointer rounded-lg border border-white/8 px-4 py-2.5 text-xs font-semibold text-neutral-400 transition-colors hover:bg-white/5 hover:text-white"
+            onClick={() =>
+              router.push(
+                `/dashboard/resumes/${resumeId}/cover-letter?optimisationId=${optimization.id}`,
+              )
+            }
+            className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/8 bg-white/4 px-5 py-2.5 text-xs font-semibold text-neutral-300 transition-all hover:border-violet-500/30 hover:bg-violet-500/8 hover:text-violet-300"
           >
-            Reset All
+            <Mail className="size-3.5" />
+            Cover Letter
           </button>
 
           <button
@@ -567,6 +577,8 @@ export function OptimizePageClient({
         <TypstLivePreview
           resumeContent={initialResumeContent}
           optimization={optimization}
+          style={resumeStyle}
+          onStyleChange={setResumeStyle}
           activeReviews={Object.assign(
             {},
             bulletReviews,

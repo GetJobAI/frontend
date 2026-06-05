@@ -13,7 +13,9 @@ import type {
   Certification,
   Language,
   Project,
+  StyleValue,
 } from "~/app/dashboard/resumes/[resumeId]/_components/resume-content-types";
+import { TemplatesPopover } from "~/app/dashboard/resumes/[resumeId]/_components/TemplatesPopover";
 import type { Optimizations } from "~/server/api/generated/schemas";
 
 export interface BulletSuggestion {
@@ -62,18 +64,35 @@ interface TypstLivePreviewProps {
   resumeContent: ResumeContent;
   optimization: Optimizations | null;
   activeReviews: Record<string, boolean | null>;
+  style: StyleValue;
+  onStyleChange: (style: StyleValue) => void;
+}
+
+function escapeTypstContent(val: string): string {
+  if (!val) return "";
+  return val.replace(/\\/g, "\\\\").replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+}
+
+function escapeTypstString(val: string): string {
+  if (!val) return "";
+  return val.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
 // Word-level diff generator formatting to Typst macros
 function generateTypstDiff(original: string, rewritten: string): string {
-  if (!original) return `#diff-added[${rewritten}]`;
-  if (!rewritten) return `#diff-deleted[${original}]`;
+  if (!original)
+    return `#diff-added[${escapeTypstContent(rewritten).replace(/\*/g, "\\*")}]`;
+  if (!rewritten)
+    return `#diff-deleted[${escapeTypstContent(original).replace(/\*/g, "\\*")}]`;
 
   const diff = diffWords(original, rewritten);
   return diff
     .map((part) => {
       // Escape brackets to prevent breaking Typst content blocks
-      const val = part.value.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+      let val = escapeTypstContent(part.value);
+      if (part.added || part.removed) {
+        val = val.replace(/\*/g, "\\*");
+      }
       if (part.added) {
         return `#diff-added[${val}]`;
       }
@@ -90,6 +109,7 @@ function serializeResumeToTypst(
   content: ResumeContent,
   suggestions: AiSuggestions | null | undefined,
   activeReviews: Record<string, boolean | null>,
+  style: string,
 ): string {
   const contact = content.contact ?? { name: "" };
 
@@ -105,10 +125,14 @@ function serializeResumeToTypst(
           ? summarySuggestion.rewritten
           : summarySuggestion;
       if (reviewStatus === true) {
-        summaryText = rewritten;
+        summaryText = escapeTypstContent(rewritten);
       } else if (reviewStatus === null) {
         summaryText = generateTypstDiff(content.summary, rewritten);
+      } else {
+        summaryText = escapeTypstContent(content.summary);
       }
+    } else {
+      summaryText = escapeTypstContent(summaryText);
     }
     summaryStr = `[${summaryText}]`;
   }
@@ -142,20 +166,24 @@ function serializeResumeToTypst(
           if (bulletSug) {
             const reviewStatus = activeReviews[bulletSug.id];
             if (reviewStatus === true) {
-              text = bulletSug.rewritten;
+              text = escapeTypstContent(bulletSug.rewritten);
             } else if (reviewStatus === null) {
               text = generateTypstDiff(bullet, bulletSug.rewritten);
+            } else {
+              text = escapeTypstContent(bullet);
             }
+          } else {
+            text = escapeTypstContent(bullet);
           }
           return `[${text}]`;
         },
       );
 
       return `(
-      company: ${exp.company ? `"${exp.company.replace(/"/g, '\\"')}"` : "none"},
-      title: ${exp.title ? `"${exp.title.replace(/"/g, '\\"')}"` : "none"},
-      dates: "${exp.dates}",
-      location: ${exp.location ? `"${exp.location.replace(/"/g, '\\"')}"` : "none"},
+      company: ${exp.company ? `"${escapeTypstString(exp.company)}"` : "none"},
+      title: ${exp.title ? `"${escapeTypstString(exp.title)}"` : "none"},
+      dates: "${escapeTypstString(exp.dates)}",
+      location: ${exp.location ? `"${escapeTypstString(exp.location)}"` : "none"},
       bullets: (${bullets.length > 0 ? bullets.join(", ") + "," : ""}),
       hide: ${exp.hide ? "true" : "false"}
     )`;
@@ -173,7 +201,7 @@ function serializeResumeToTypst(
       skillsSerialized = [
         `(
         category: "Skills",
-        items: (${suggestions.resume_skills.map((i: string) => `"${i.replace(/"/g, '\\"')}"`).join(", ") + ","})
+        items: (${suggestions.resume_skills.map((i: string) => `"${escapeTypstString(i)}"`).join(", ") + ","})
       )`,
       ];
     } else if (reviewStatus === null) {
@@ -190,63 +218,63 @@ function serializeResumeToTypst(
     } else {
       skillsSerialized = (content.skills ?? []).map(
         (g: SkillGroup) => `(
-        category: "${g.category.replace(/"/g, '\\"')}",
-        items: (${g.items.map((i: string) => `"${i.replace(/"/g, '\\"')}"`).join(", ") + (g.items.length > 0 ? "," : "")})
+        category: "${escapeTypstString(g.category)}",
+        items: (${g.items.map((i: string) => `"${escapeTypstString(i)}"`).join(", ") + (g.items.length > 0 ? "," : "")})
       )`,
       );
     }
   } else {
     skillsSerialized = (content.skills ?? []).map(
       (g: SkillGroup) => `(
-      category: "${g.category.replace(/"/g, '\\"')}",
-      items: (${g.items.map((i: string) => `"${i.replace(/"/g, '\\"')}"`).join(", ") + (g.items.length > 0 ? "," : "")})
+      category: "${escapeTypstString(g.category)}",
+      items: (${g.items.map((i: string) => `"${escapeTypstString(i)}"`).join(", ") + (g.items.length > 0 ? "," : "")})
     )`,
     );
   }
 
   const education = (content.education ?? []).map(
     (edu: EducationEntry) => `(
-    institution: "${edu.institution.replace(/"/g, '\\"')}",
-    degree: "${edu.degree.replace(/"/g, '\\"')}",
-    dates: "${edu.dates}",
-    location: ${edu.location ? `"${edu.location.replace(/"/g, '\\"')}"` : "none"},
-    grade: ${edu.grade ? `"${edu.grade}"` : "none"},
+    institution: "${escapeTypstString(edu.institution)}",
+    degree: "${escapeTypstString(edu.degree)}",
+    dates: "${escapeTypstString(edu.dates)}",
+    location: ${edu.location ? `"${escapeTypstString(edu.location)}"` : "none"},
+    grade: ${edu.grade ? `"${escapeTypstString(edu.grade)}"` : "none"},
     hide: ${edu.hide ? "true" : "false"}
   )`,
   );
 
   const certifications = (content.certifications ?? []).map(
     (c: Certification) => `(
-    name: "${c.name.replace(/"/g, '\\"')}",
-    issuer: "${c.issuer.replace(/"/g, '\\"')}",
-    date: "${c.date}"
+    name: "${escapeTypstString(c.name)}",
+    issuer: "${escapeTypstString(c.issuer)}",
+    date: "${escapeTypstString(c.date)}"
   )`,
   );
 
   const languages = (content.languages ?? []).map(
     (l: Language) => `(
-    name: "${l.name.replace(/"/g, '\\"')}",
-    level: "${l.level}"
+    name: "${escapeTypstString(l.name)}",
+    level: "${escapeTypstString(l.level)}"
   )`,
   );
 
   const projects = (content.projects ?? []).map(
     (p: Project) => `(
-    name: "${p.name.replace(/"/g, '\\"')}",
-    description: [${p.description}],
-    url: ${p.url ? `"${p.url}"` : "none"}
+    name: "${escapeTypstString(p.name)}",
+    description: [${escapeTypstContent(p.description)}],
+    url: ${p.url ? `"${escapeTypstString(p.url)}"` : "none"}
   )`,
   );
 
   return `(
-    style: "${content.style ?? "professional"}",
+    style: "${style}",
     contact: (
-      name: "${contact.name?.replace(/"/g, '\\"') ?? ""}",
-      email: ${contact.email ? `"${contact.email}"` : "none"},
-      phone: ${contact.phone ? `"${contact.phone}"` : "none"},
-      location: ${contact.location ? `"${contact.location.replace(/"/g, '\\"')}"` : "none"},
-      linkedin: ${contact.linkedin ? `"${contact.linkedin}"` : "none"},
-      github: ${contact.github ? `"${contact.github}"` : "none"}
+      name: "${escapeTypstString(contact.name ?? "")}",
+      email: ${contact.email ? `"${escapeTypstString(contact.email)}"` : "none"},
+      phone: ${contact.phone ? `"${escapeTypstString(contact.phone)}"` : "none"},
+      location: ${contact.location ? `"${escapeTypstString(contact.location)}"` : "none"},
+      linkedin: ${contact.linkedin ? `"${escapeTypstString(contact.linkedin)}"` : "none"},
+      github: ${contact.github ? `"${escapeTypstString(contact.github)}"` : "none"}
     ),
     summary: ${summaryStr},
     experience: (${experiences.length > 0 ? experiences.join(", ") + "," : ""}),
@@ -262,6 +290,8 @@ export function TypstLivePreview({
   resumeContent,
   optimization,
   activeReviews,
+  style,
+  onStyleChange,
 }: TypstLivePreviewProps) {
   const [pdfData, setPdfData] = useState<Uint8Array | null>(null);
   const [isCompiling, setIsCompiling] = useState(false);
@@ -339,6 +369,7 @@ export function TypstLivePreview({
   }, [
     resumeContent,
     activeReviews,
+    style,
     typstCompilerRef.current,
     templateStrRef.current,
   ]);
@@ -360,6 +391,7 @@ export function TypstLivePreview({
         resumeContent,
         suggestions,
         activeReviews,
+        style,
       );
 
       // Concatenate base template rules and call #resume(dict)
@@ -403,6 +435,7 @@ export function TypstLivePreview({
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-white/8 bg-neutral-900/60 px-5">
         <div className="flex items-center gap-2">
+          <TemplatesPopover content={{ style }} onStyleChange={onStyleChange} />
           <button
             type="button"
             onClick={handleDownload}
