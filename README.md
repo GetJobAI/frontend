@@ -1,6 +1,6 @@
 # GetjobAI frontend
 
-Next.js app for AI-powered resume building and optimization: guided wizard, PDF parsing, LinkedIn import, resume editor, template styles, PDF preview and ATS optimization.
+Next.js app for AI-powered resume building and optimization: guided wizard, PDF parsing, LinkedIn import (soon), resume editor, template styles, PDF preview and ATS optimization.
 
 ## Stack
 
