@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+INFRA_DIR="${INFRA_DIR:-$ROOT/infra}"
+INFRA_REPO="${INFRA_REPO:-https://github.com/GetJobAI/infra.git}"
+BASE_API_URL="${BASE_API_URL:-http://localhost:8080}"
+CORE_API_URL="${CORE_API_URL:-$BASE_API_URL/api/v1/}"
+PDF_API_URL="${PDF_API_URL:-$BASE_API_URL/api/v1/pdf/openapi.json}"
+OPTIMIZER_API_URL="${OPTIMIZER_API_URL:-$BASE_API_URL/api/v1/optimizer/openapi.json}"
+PARSER_API_URL="${PARSER_API_URL:-$BASE_API_URL/api/v1/parser/openapi.json}"
+CORE_SPEC_OUT=".docs/openapi/core.json"
+PDF_SPEC_OUT=".docs/openapi/pdf-generator.json"
+OPTIMIZER_SPEC_OUT=".docs/openapi/optimizer.json"
+PARSER_SPEC_OUT=".docs/openapi/parser.json"
+
+mkdir -p ".docs/openapi"
+
+if [[ ! -d "$INFRA_DIR/.git" ]]; then
+  echo "-> clone infra -> $INFRA_DIR"
+  git clone "$INFRA_REPO" "$INFRA_DIR"
+fi
+
+echo "-> infra: pull + restart ($INFRA_DIR)"
+(cd "$INFRA_DIR" && git pull && just restart-all)
+
+echo "-> fetch core OpenAPI -> $CORE_SPEC_OUT"
+curl -fsS "$CORE_API_URL" -H "Accept: application/openapi+json" \
+  | pnpm exec prettier --parser json >"$CORE_SPEC_OUT"
+
+echo "-> fetch PDF OpenAPI -> $PDF_SPEC_OUT"
+curl -fsS "$PDF_API_URL" | pnpm exec prettier --parser json >"$PDF_SPEC_OUT"
+
+echo "-> fetch optimizer OpenAPI -> $OPTIMIZER_SPEC_OUT"
+curl -fsS "$OPTIMIZER_API_URL" | pnpm exec prettier --parser json >"$OPTIMIZER_SPEC_OUT"
+
+echo "-> fetch parser OpenAPI -> $PARSER_SPEC_OUT"
+curl -fsS "$PARSER_API_URL" | pnpm exec prettier --parser json >"$PARSER_SPEC_OUT"
+
+echo "-> regenerate Orval client"
+pnpm exec orval
+
+echo "-> format generated code"
+pnpm exec prettier --write "src/server/api/generated/**/*.ts" --log-level silent
+
+echo "Done."

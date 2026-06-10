@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INFRA_DIR="${INFRA_DIR:-$ROOT/infra}"
+
+if [[ ! -d "$INFRA_DIR" ]]; then
+  echo "Infra directory not found: $INFRA_DIR"
+  echo "Run 'just up' first or set INFRA_DIR."
+  exit 1
+fi
+
+(cd "$INFRA_DIR" && just down)
